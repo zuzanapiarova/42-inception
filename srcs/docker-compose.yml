@@ -1,0 +1,9 @@
+version . 
+
+services 
+  maridbb 
+  
+  NGINIX
+
+  WORDPRESSS
+
