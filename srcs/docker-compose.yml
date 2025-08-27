@@ -2,14 +2,18 @@ version: "3.9"
 
 services:
   nginx:
-    build: "./services/nginx"
+    build: "./requirements/nginx"
+    container_name: nginx
     networks: # nginx is in both networks since it’s the true bridge
       - backend
-      - frontend
     depends_on:
       - wordpress
     ports:
       - "443:443" # only expose this to outside world since we have to get requests from internet
+    volumes:
+      - /home/zpiarova/data/wordpress-site:/var/www/html
+      - ./requirements/nginx/conf:/etc/nginx/conf.d # bind directory with nginx conf file on host to nginx/conf.d on container, as it should always contain the current conf file
+      - ./.secrets/ssl:/etc/ssl
     restart: "on-failure"
     # image: nginx:latest
     # ports:
@@ -19,7 +23,8 @@ services:
     # restart: always
 
   wordpress:
-    build: "./services/wordpress"
+    build: "./requirements/wordpress"
+    container_name: wordpress
     networks:
       - backend
     depends_on:
@@ -35,7 +40,8 @@ services:
       WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
 
   mariadb: 
-    build: "./services/mariadb"
+    build: "./requirements/mariadb"
+    container_name: mariadb
     networks:
       - backend
     # no ports because we do not want to expose it to host
