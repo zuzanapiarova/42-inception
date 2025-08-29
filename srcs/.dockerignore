@@ -1,5 +1,6 @@
 .env
 docker-compose.yml
-.secrets/
+.keys/
 .dockerignore
 ../.gitignore
+../home/

@@ -1,4 +1,5 @@
 /srcs/.env
-/srcs/.secrets/
+/srcs/.keys/
+./home/
 
 

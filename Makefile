@@ -1,20 +1,26 @@
-NAME = inception
+DOCKER_COMPOSE=docker compose
 
-all: prune reload
+DOCKER_COMPOSE_FILE = ./srcs/docker-compose.yml
 
-linux:
-	@ echo "127.0.0.1 raccoman.42.fr" >> /etc/hosts
-	
-stop:
-	@ docker-compose -f srcs/docker-compose.yml down
+build:
+	mkdir -p /home/zpiarova/data/wordpress-database
+	mkdir -p /home/zpiarova/data/wordpress-site
+	@$(DOCKER_COMPOSE)  -f $(DOCKER_COMPOSE_FILE) up --build -d
 
-clean: stop
-	@ rm -rf ~/Desktop/inception
+kill:
+	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) kill
 
-prune: clean
-	@ docker system prune -f
+down:
+	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) down
 
-reload: 
-	@ docker-compose -f srcs/docker-compose.yml up --build
+clean:
+	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) down -v
 
-.PHONY: linux stop clean prune reload all
+fclean: clean
+	rm -rf /home/zpiarova/data/wordpress-database
+	rm -rf /home/zpiarova/data/wordpress-site
+	docker system prune -a -f
+
+restart: clean build
+
+.PHONY: kill build down clean restart
