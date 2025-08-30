@@ -1,3 +1,5 @@
+# MARIADB
+
 FROM debian:bullseye
 
 RUN apt-get update && \
@@ -20,4 +22,4 @@ RUN chmod +x db-init.sh
 EXPOSE 3306
 
 ENTRYPOINT ["/db-init.sh"]
-CMD ["mysqld", "--console"]
+CMD ["mysqld_safe", "--console"]

@@ -1,3 +1,5 @@
+# WORDPRESS
+
 FROM debian:bullseye
 
 RUN apt-get update && apt-get install -y \
@@ -5,6 +7,8 @@ RUN apt-get update && apt-get install -y \
     php7.4-mysql \
     php7.4-zip \
     curl \
+    mariadb-client \
+    sendmail \
     vim
 
 # replaces so that PHP-FPM listens on TCP port 9000 instead of a Unix socket which only works inside the same container
@@ -41,4 +45,3 @@ ENTRYPOINT ["bash", "wp-setup.sh"]
     #sed -i -e 's/;listen.mode = 0660/listen.mode = 0660/g' /etc/php/7.3/fpm/pool.d/www.conf && \
     #sed -i -e 's/;clear_env = no/clear_env = no/g' /etc/php/7.3/fpm/pool.d/www.conf && \
     #sed -i -e 's/;catch_workers_output = yes/catch_workers_output = yes/g' /etc/php/7.3/fpm/pool.d/www.conf && \
-# RUN apt-get install -y sendmail

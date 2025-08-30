@@ -17,12 +17,6 @@ services:
       - ./requirements/nginx/conf:/etc/nginx/conf.d # bind directory with nginx conf file on host to nginx/conf.d on container, as it should always contain the current conf file
       - ./.keys/ssl:/etc/ssl
     restart: "on-failure"
-    # image: nginx:latest
-    # ports:
-    #   - "1024:80"
-    # volumes:
-    #   - ./.:/usr/share/nginx/html
-    # restart: always
 
   wordpress:
     build: "./requirements/wordpress"
@@ -69,17 +63,17 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
 
-# adminer:
-#     build: ./requirements/bonus/adminer
-#     image: adminer
-#     container_name: adminer
-#     restart: always
-#     ports: 
-#       - "8080:8080"
-#     depends_on:
-#       - mariadb
-#     networks:
-#       - backend
+  adminer:
+      build: ./requirements/bonus/adminer
+      image: adminer
+      container_name: adminer
+      restart: always
+      ports: 
+        - "8080:8080"
+      depends_on:
+        - mariadb
+      networks:
+        - backend
 
 volumes:
   wordpress-site:
