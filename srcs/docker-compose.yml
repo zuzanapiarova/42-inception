@@ -5,8 +5,7 @@ services:
     build: "./requirements/nginx"
     image: nginx
     container_name: nginx
-    networks: # nginx is in both networks since it’s the true bridge
-      - frontend
+    networks:
       - backend
     depends_on:
       - wordpress
@@ -44,6 +43,9 @@ services:
       WORDPRESS_ADMIN_USER: ${WORDPRESS_ADMIN_USER}
       WORDPRESS_ADMIN_EMAIL: ${WORDPRESS_ADMIN_EMAIL}
       WORDPRESS_ADMIN_PASSWORD: ${WORDPRESS_ADMIN_PASSWORD}
+      WP_REDIS_HOST: redis
+      WP_REDIS_PORT: 6379
+      WP_REDIS_PASSWORD: ${REDIS_PASSWORD}
 
   mariadb: 
     build: "./requirements/mariadb"
@@ -64,24 +66,53 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
 
   adminer:
-      build: ./requirements/bonus/adminer
-      image: adminer
-      container_name: adminer
-      restart: always
-      ports: 
-        - "8080:8080"
-      depends_on:
-        - mariadb
-      networks:
-        - backend
+    build: ./requirements/bonus/adminer
+    image: adminer
+    container_name: adminer
+    restart: "on-failure"
+    ports: 
+      - "8080:8080"
+    depends_on:
+      - mariadb
+    networks:
+      - backend
+
+  ftp:
+    build: ./requirements/bonus/ftp
+    image: ftp
+    container_name: ftp
+    restart: "on-failure"
+    ports: 
+      - "21:21"
+      - "30000-30009:30000-30009"
+    depends_on:
+      - wordpress
+    volumes:
+      - wordpress-site:/var/www/html
+    networks:
+      - backend  
+    environment:
+      FTP_USER: ${WORDPRESS_ADMIN_USER}
+      FTP_PASSWORD: ${WORDPRESS_ADMIN_PASSWORD}
+      DOMAIN_NAME: ${DOMAIN_NAME}
+
+  redis:
+    build: ./requirements/bonus/redis
+    image: redis
+    container_name: redis
+    ports:
+      - 6379:6379
+    networks:
+      - backend
+    restart: on-failure
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
 
 volumes:
   wordpress-site:
   wordpress-data:
 
 # blocks can be empty if we want the default config, compose will create them automatically
-networks: # 2 networks for better security
-  frontend: # only for nginx and external requests
-    driver: bridge
-  backend: # connects mariadb+wp(+nginx) - now seems pointless, but networks may grow - this keeps mariadb isolated from other possible frontend containers
+networks:
+  backend:
     driver: bridge

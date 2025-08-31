@@ -1,16 +1,18 @@
 DOCKER_COMPOSE_FILE = ./srcs/docker-compose.yml
 
-up:
+# change ip address in vsftpd.conf
+build:
 	mkdir -p /home/zpiarova/data/wordpress-data
 	mkdir -p /home/zpiarova/data/wordpress-site
 
 	sudo chown -R 33:33 /home/zpiarova/data/wordpress-data
 	sudo chown -R 999:999 /home/zpiarova/data/wordpress-site
 
-	docker compose  -f $(DOCKER_COMPOSE_FILE) up --build -d
+	docker compose $(DOCKER_COMPOSE_FILE) build --no-cache
+	docker compose up -d
 
-kill:
-	docker compose -f $(DOCKER_COMPOSE_FILE) kill
+up: 
+	docker compose up -d
 
 down:
 	docker compose -f $(DOCKER_COMPOSE_FILE) down
@@ -23,6 +25,6 @@ fclean: clean
 	rm -rf /home/zpiarova/data/wordpress-site
 	docker system prune -a -f
 
-restart: clean build
+restart: clean up
 
-.PHONY: kill up down clean restart
+.PHONY: build up down clean fclean restart
