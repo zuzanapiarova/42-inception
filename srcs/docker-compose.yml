@@ -108,6 +108,16 @@ services:
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
 
+  static_site:
+    build: ./requirements/bonus/static_site
+    image: static_site
+    container_name: static_site
+    networks:
+      - backend
+    ports:
+      - "80:80"
+    restart: on-failure
+
 volumes:
   wordpress-site:
   wordpress-data:
