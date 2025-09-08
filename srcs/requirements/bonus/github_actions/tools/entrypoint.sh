@@ -2,6 +2,7 @@
 
 set -e
 
+cd /runner/actions-runner
 echo "Starting"
 
 # required env vars for runner process: GITHUB_URL, RUNNER_TOKEN
@@ -42,7 +43,7 @@ if [ ! -f .runner ]; then
     --token "$RUNNER_TOKEN" \
     --name "${RUNNER_NAME:-$(hostname)}" \
     --work "${RUNNER_HOME}/_work" \
-    --labels inception-runner
+    --labels "self-hosted, inception-runner, docker, linux"
 fi
 echo "Configured"
 

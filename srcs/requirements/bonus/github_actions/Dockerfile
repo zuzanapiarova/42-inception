@@ -21,15 +21,16 @@ RUN useradd -m runner && \
 WORKDIR /runner
 
 # download and extract GitHub Actions runner - trying here form script so it only runs once - 
-RUN mkdir actions-runner
-RUN cd actions-runner
-RUN echo "Running actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz"
-RUN curl -fsSL --retry 5 --retry-delay 10 -o actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
-RUN echo "downloaded"
-RUN tar xzf ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
-RUN echo "Expanded"
-RUN rm ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
-RUN echo "removed tar"
+# TODO: put version into env and into build arguments - does not work for some reason even tho its there
+RUN mkdir actions-runner && \
+    cd actions-runner && \
+    echo "Running actions-runner-linux-x64-2.328.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.328.0/actions-runner-linux-x64-2.328.0.tar.gz"  && \
+    curl -fsSL --retry 5 --retry-delay 10 -o actions-runner-linux-x64-2.328.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.328.0/actions-runner-linux-x64-2.328.0.tar.gz  && \
+    echo "downloaded"  && \
+    tar xzf ./actions-runner-linux-x64-2.328.0.tar.gz  && \
+    echo "Expanded"  && \
+    rm ./actions-runner-linux-x64-2.328.0.tar.gz  && \
+    echo "removed tar"
 
 # Copy entrypoint as root
 COPY ./tools/entrypoint.sh /entrypoint.sh
