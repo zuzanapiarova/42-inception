@@ -22,7 +22,7 @@ if ! wp core is-installed --allow-root; then
     HOME_ID=$(wp post create \
         --post_type=page \
         --post_title="<h4 style='color: #AA336A;'>Home</h4>" \
-        --post_content="<h1 style='color:#FFB6C1;'>Welcome to Inception project by zpiarova</h1>" \
+        --post_content="<h1 style='color:#FFB6C1;'>Welcome to Inception project by zpiarova - now with github actions </h1>" \
         --post_status=publish \
         --porcelain --allow-root) || true
 

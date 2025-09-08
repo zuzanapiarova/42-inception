@@ -10,6 +10,7 @@ services:
     depends_on:
       - wordpress
     ports:
+      - "81:80"
       - "443:443" # only expose this to outside world since we have to get requests from internet
     volumes:
       - wordpress-site:/var/www/html
@@ -108,21 +109,44 @@ services:
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
 
-  static_site:
-    build: ./requirements/bonus/static_site
-    image: static_site
-    container_name: static_site
+  github_actions:
+    build:
+      context: ./requirements/bonus/github_actions
+      args:
+        RUNNER_VERSION: ${RUNNER_VERSION}
+    image: github_actions
+    container_name: github_actions
+    volumes:
+      - github-actions-data:/runner
     networks:
       - backend
-    ports:
-      - "80:80"
     restart: on-failure
+    environment:
+      GITHUB_URL: ${GITHUB_URL} # can these stay here? If i remove them, will they not propagate to github ? 
+      RUNNER_TOKEN: ${RUNNER_TOKEN} # ! RUNNER_TOKEN from GitHub expires after registration - get new one from github actions site. For long-term setups, enterprises use ephemeral runners or actions-runner-controller to auto-refresh tokens
+      RUNNER_NAME: ${RUNNER_NAME}
+      RUNNER_VERSION: ${RUNNER_VERSION}
+      RUNNER_HOME: ${RUNNER_HOME} # mount for gha data goes here
 
 volumes:
   wordpress-site:
   wordpress-data:
+  github-actions-data:
 
 # blocks can be empty if we want the default config, compose will create them automatically
 networks:
   backend:
     driver: bridge
+
+# static_site:
+#     build: ./requirements/bonus/static_site
+#     image: static_site
+#     container_name: static_site
+#     networks:
+#       - backend
+#     expose: 
+#       - "80"
+#       - "443"
+#     ports:
+#       - "81:80" # HOST_PORT:CONTAINER_PORT
+#     restart: on-failure
