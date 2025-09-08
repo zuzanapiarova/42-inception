@@ -43,7 +43,7 @@ if [ ! -f .runner ]; then
     --token "$RUNNER_TOKEN" \
     --name "${RUNNER_NAME:-$(hostname)}" \
     --work "${RUNNER_HOME}/_work" \
-    --labels "self-hosted, inception-runner, docker, linux"
+    --labels "self-hosted,inception-runner,docker,linux"
 fi
 echo "Configured"
 

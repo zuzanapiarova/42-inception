@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    runs-on: [self-hosted, inception-runner, docker, linux]   # must match your runner labels
+    runs-on: [self-hosted,inception-runner,docker,linux]   # must match your runner labels
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
