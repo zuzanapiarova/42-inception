@@ -11,29 +11,14 @@ if [ -z "$GITHUB_URL" ] || [ -z "$RUNNER_TOKEN" ]; then
   exit 1
 fi
 
-# # in GitHub repo, select Settings -> Actions -> Self-hosted and use the generated commands here:
-# if [ ! -d actions-runner ]; then
-#   mkdir actions-runner
-# fi
-# cd actions-runner
-
-# # download and extract GitHub Actions runner
-# echo "Running actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz"
-# curl -fsSL --retry 5 --retry-delay 10 -o actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
-# echo "downloaded"
-
-# tar xzf ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
-# echo "Expanded"
-# rm ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
-# echo "removed tar"
-
-# if [ -x ./bin/installdependencies.sh ]; then # -x check so your script won’t crash if installdependencies.sh isn’t there yet
-#   echo "Installing runner dependencies..."
-#   sudo ./bin/installdependencies.sh
-#   echo "Dependencies installed"
-# else
-#   echo "Warning: ./bin/installdependencies.sh not found!"
-# fi
+# get new github token
+# echo "Getting runner token ..."
+# curl --request GET \
+#     --url "https://api.github.com/user" \
+#     --header "Accept: application/vnd.github+json" \
+#     --header "Authorization: Bearer $USER_ACCESS_TOKEN" \
+#     --header "X-GitHub-Api-Version: 2022-11-28"
+# echo "Got runner token"
 
 # configure the runner (only if not already configured)
 if [ ! -f .runner ]; then
@@ -42,7 +27,7 @@ if [ ! -f .runner ]; then
     --url "$GITHUB_URL" \
     --token "$RUNNER_TOKEN" \
     --name "${RUNNER_NAME:-$(hostname)}" \
-    --work "${RUNNER_HOME}/_work" \
+    --work "$RUNNER_HOME/_work" \
     --labels "self-hosted,inception-runner,docker,linux"
 fi
 echo "Configured"
