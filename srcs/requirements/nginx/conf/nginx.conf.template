@@ -1,5 +1,5 @@
 # events is a top-level Nginx context used for connection-handling settings
-# each worker process can handle up to 1024 simultaneous connections.
+# each worker process can handle up to 1024 simultaneous connections
 events {
     worker_connections 1024;
 }
@@ -11,7 +11,7 @@ http {
         listen 443 ssl;
 
         # defines server name and the server block that should be used for requests to the server
-        server_name zpiarova.42.fr www.zpiarova.42.fr;
+        server_name DOMAIN_NAME www.DOMAIN_NAME;
 
         # root directory for requests to the server - /var/www/html is created as mount point at build time by wp Dockerfileand mounts wp files in this volume
         root /var/www/html;

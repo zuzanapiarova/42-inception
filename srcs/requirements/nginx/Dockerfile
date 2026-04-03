@@ -1,10 +1,17 @@
 FROM debian:bullseye-slim
 
-RUN apt-get update && \
-    apt-get install -y nginx && \
-    rm -rf /var/lib/apt/lists/* 
-    # remove cached package metadata to keep image lightweight
+# get ARGs from compose or default to these values
+ARG DOMAIN_NAME=zpiarova.42.fr 
+ARG NGINX_HOST_PORT=443
 
-EXPOSE 443
+RUN apt-get update && \
+    apt-get install -y nginx gettext-base && \
+    rm -rf /var/lib/apt/lists/* 
+
+COPY ./conf/nginx.conf.template /etc/nginx/templates/nginx.conf.template
+
+RUN envsubst '$DOMAIN_NAME' < /etc/nginx/templates/nginx.conf.template > /etc/nginx/conf.d
+
+EXPOSE $NGINX_HOST_PORT
 
 ENTRYPOINT [ "nginx", "-g", "daemon off;" ]

@@ -2,36 +2,34 @@ version: "3.9"
 
 services:
   nginx:
-    build: "./requirements/nginx"
+    build:
+      context: "./requirements/nginx"
+      args: # available only during build
+        NGINX_HOST_PORT: ${NGINX_HOST_PORT:-443}
+        DOMAIN_NAME: ${DOMAIN_NAME:-zpiarova.42.fr}
     container_name: nginx
-    networks: # nginx is in both networks since it’s the true bridge
-      - backend
+    networks:
+      - inception-network
     depends_on:
       - wordpress
     ports:
-      - "443:443" # only expose this to outside world since we have to get requests from internet
+      - "${NGINX_HOST_PORT:-443}:443" # expose to host only this port to get requests from internet
     volumes:
-      - /home/zpiarova/data/wordpress-site:/var/www/html
-      - ./requirements/nginx/conf:/etc/nginx/conf.d # bind directory with nginx conf file on host to nginx/conf.d on container, as it should always contain the current conf file
-      - ./.secrets/ssl:/etc/ssl
+      - ${WORDPRESS_FILE_PATH}:/var/www/html
+      # - ./requirements/nginx/conf:/etc/nginx/conf.d # bind nginx conf file
+      - ./.secrets/ssl:/etc/ssl # bind certificates
     restart: "on-failure"
-    # image: nginx:latest
-    # ports:
-    #   - "1024:80"
-    # volumes:
-    #   - ./.:/usr/share/nginx/html
-    # restart: always
 
   wordpress:
     build: "./requirements/wordpress"
     container_name: wordpress
     networks:
-      - backend
+      - inception-network
     depends_on:
       - mariadb
     # no ports because we do not want to expose it to host
     volumes:
-      - /home/zpiarova/data/wordpress-site:/var/www/html # bind mount
+      - ${WORDPRESS_FILE_PATH}:/var/www/html # bind dir for site files
     restart: "on-failure"
     environment:
       WORDPRESS_DB_HOST: mariadb:${DB_PORT}
@@ -43,10 +41,10 @@ services:
     build: "./requirements/mariadb"
     container_name: mariadb
     networks:
-      - backend
+      - inception-network
     # no ports because we do not want to expose it to host
     volumes:
-      - /home/zpiarova/data/wordpress-database:/var/lib/mysql  # bind mount
+      - ${WORDPRESS_DB_PATH}:/var/lib/mysql  # bind mount
     restart: "on-failure"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -55,6 +53,5 @@ services:
       MYSQL_PASSWORD: ${WORDPRESS_DB_PASSWORD}
 
 # blocks can be empty if we want the default config, compose will create them automatically
-networks: # 2 networks for better security
-  frontend: # only for nginx and external requests
-  backend: # connects mariadb+wp(+nginx) - now seems pointless, but networks may grow - this keeps mariadb isolated from other possible frontend containers
+networks:
+  inception-network: 

@@ -1,9 +1,10 @@
 NAME = inception
 
+# check the directories from envs exist and that docker containers can write them
 all: prune reload
 
 linux:
-	@ echo "127.0.0.1 raccoman.42.fr" >> /etc/hosts
+	@ echo "127.0.0.1 zpiarova.42.fr" >> /etc/hosts
 	
 stop:
 	@ docker-compose -f srcs/docker-compose.yml down
