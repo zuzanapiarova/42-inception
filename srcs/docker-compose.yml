@@ -1,36 +1,31 @@
-version: "3.9"
-
 services:
   nginx:
     build: "./requirements/nginx"
     image: nginx
-    container_name: nginx
     networks:
       - backend
     depends_on:
       - wordpress
     ports:
       - "81:80"
-      - "443:443" # only expose this to outside world since we have to get requests from internet
+      - "443:443"
     volumes:
-      - wordpress-site:/var/www/html
-      - ./requirements/nginx/conf:/etc/nginx/conf.d # bind directory with nginx conf file on host to nginx/conf.d on container, as it should always contain the current conf file
-      - ./.keys/ssl:/etc/ssl
+      - wordpress-site:/var/www/html:ro # read-only
+      - ./.keys/ssl:/etc/ssl # mount keys instead of copying so they are not baked into the image
     restart: "on-failure"
+    # TODO: keys are not valid - also is there a better way than to mount them ? can they be generated with make always and pu to continer some other way ?
 
   wordpress:
     build: "./requirements/wordpress"
     image: wordpress
-    container_name: wordpress
     expose:
       - "9000"
     networks:
       - backend
     depends_on:
       - mariadb
-    # no ports because we do not want to expose it to host
     volumes:
-      - wordpress-site:/var/www/html # bind mount
+      - wordpress-site:/var/www/html
     restart: "on-failure"
     environment:
       WORDPRESS_DB_HOST: mariadb:${DB_PORT}
@@ -51,25 +46,23 @@ services:
   mariadb: 
     build: "./requirements/mariadb"
     image: mariadb
-    container_name: mariadb
     expose:
       - "3306"
     networks:
       - backend
-    # no ports because we do not want to expose it to host
     volumes:
-      - wordpress-data:/var/lib/mysql  # named volume - change to bind mount !
+      - wordpress-data:/var/lib/mysql
     restart: "on-failure"
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
+      # MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
 
+  # bonus:
   adminer:
     build: ./requirements/bonus/adminer
     image: adminer
-    container_name: adminer
     restart: "on-failure"
     ports: 
       - "8080:8080"
@@ -81,7 +74,6 @@ services:
   ftp:
     build: ./requirements/bonus/ftp
     image: ftp
-    container_name: ftp
     restart: "on-failure"
     ports: 
       - "21:21"
@@ -100,7 +92,6 @@ services:
   redis:
     build: ./requirements/bonus/redis
     image: redis
-    container_name: redis
     ports:
       - 6379:6379
     networks:
@@ -115,9 +106,8 @@ services:
       args:
         RUNNER_VERSION: ${RUNNER_VERSION}
     image: github_actions
-    container_name: github_actions
-    volumes:
-      - github-actions-data:/runner
+    # volumes:
+    #   - github-actions-data:/runner
     networks:
       - backend
     restart: on-failure
@@ -129,25 +119,23 @@ services:
       RUNNER_VERSION: ${RUNNER_VERSION}
       RUNNER_HOME: ${RUNNER_HOME} # mount for gha data goes here
 
+# named volumes backed by a specific host directories
 volumes:
-  wordpress-site:
   wordpress-data:
-  github-actions-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_DIR}/wordpress-data
+  wordpress-site:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_DIR}/wordpress-site
+  # github-actions-data: TODO
 
 # blocks can be empty if we want the default config, compose will create them automatically
 networks:
   backend:
     driver: bridge
-
-# static_site:
-#     build: ./requirements/bonus/static_site
-#     image: static_site
-#     container_name: static_site
-#     networks:
-#       - backend
-#     expose: 
-#       - "80"
-#       - "443"
-#     ports:
-#       - "81:80" # HOST_PORT:CONTAINER_PORT
-#     restart: on-failure

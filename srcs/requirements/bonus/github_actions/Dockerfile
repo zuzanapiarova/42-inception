@@ -32,11 +32,10 @@ RUN mkdir actions-runner && \
     rm ./actions-runner-linux-x64-2.328.0.tar.gz  && \
     echo "removed tar"
 
-# Copy entrypoint as root
-COPY ./tools/entrypoint.sh /entrypoint.sh
+COPY ./scripts/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Drop privileges afterwards
+# drop privileges for runner execution
 USER runner
 
 ENTRYPOINT ["/entrypoint.sh"]

@@ -1,28 +1,39 @@
 DOCKER_COMPOSE_FILE = ./srcs/docker-compose.yml
 
-# change ip address in vsftpd.conf
-build:
-	mkdir -p /home/zpiarova/data/wordpress-data
-	mkdir -p /home/zpiarova/data/wordpress-site
+# local dev
+DATA_DIR = ./data
 
-	sudo chown -R 33:33 /home/zpiarova/data/wordpress-data
-	sudo chown -R 999:999 /home/zpiarova/data/wordpress-site
+# prod / VM
+# DATA_DIR = /home/zpiarova/data
 
-	docker compose $(DOCKER_COMPOSE_FILE) build --no-cache
-	docker compose up -d
+# prepare data directories, build and start
+build: 
+	mkdir -p ${DATA_DIR}/wordpress-data
+	mkdir -p ${DATA_DIR}/wordpress-site
+# 	mkdir -p ${DATA_DIR}/github-actions
 
+	sudo chown -R 33:33 ${DATA_DIR}/wordpress-data
+	sudo chown -R 999:999 ${DATA_DIR}/wordpress-site
+
+	docker compose -f $(DOCKER_COMPOSE_FILE) build --no-cache
+	docker compose -f $(DOCKER_COMPOSE_FILE) up -d
+
+# start
 up: 
-	docker compose up -d
+	docker compose -f $(DOCKER_COMPOSE_FILE) up -d
 
+# stop
 down:
 	docker compose -f $(DOCKER_COMPOSE_FILE) down
+
+# bonus: TODO - make the bonus command here so normal build builds just the requirements and make bonus composes all including bonus?
 
 clean:
 	docker compose -f $(DOCKER_COMPOSE_FILE) down -v
 
 fclean: clean
-	rm -rf /home/zpiarova/data/wordpress-data
-	rm -rf /home/zpiarova/data/wordpress-site
+	rm -rf ${DATA_DIR}/wordpress-data
+	rm -rf ${DATA_DIR}/wordpress-site
 	docker system prune -a -f
 
 restart: clean up
