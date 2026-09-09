@@ -1,21 +1,24 @@
 # WORDPRESS
 
-FROM debian:bullseye
+FROM debian:bookworm
 
 RUN apt-get update && apt-get install -y \
-    php7.4-fpm \
-    php7.4-mysql \
-    php7.4-zip \
+    php8.2-fpm \
+    php8.2-mysql \
+    php8.2-zip \
     curl \
     vim \
     mariadb-client \
-    php-redis && \
+    php8.2-redis && \
     rm -rf /var/lib/apt/lists/*
-    # sendmail \
-    # ftp 
 
 # PHP-FPM configuration
-COPY ./tools/zzz-docker.conf /etc/php/7.4/fpm/pool.d/zzz-docker.conf
+# COPY ./tools/zzz-docker.conf /etc/php/8.2/fpm/pool.d/zzz-docker.conf
+RUN sed -i \
+    -e 's|^listen = .*|listen = 9000|' \
+    -e 's|^;*clear_env = .*|clear_env = no|' \
+    -e 's|^;*catch_workers_output = .*|catch_workers_output = yes|' \
+    /etc/php/8.2/fpm/pool.d/www.conf
 
 # PHP-FPM daemon uses PID file to record PID of its master process
 RUN mkdir -p /run/php 
@@ -38,4 +41,4 @@ RUN chmod +x /01-setup.sh
 EXPOSE 9000
 
 ENTRYPOINT ["/01-setup.sh"]
-CMD ["/usr/sbin/php-fpm7.4", "-F"]
+CMD ["/usr/sbin/php-fpm8.2", "-F"]

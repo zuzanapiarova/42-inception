@@ -1,23 +1,20 @@
 # FTP
 
-FROM debian:bullseye
+FROM debian:bookworm
 
 RUN apt-get update && \
-    apt-get install -y \
-    vsftpd
+    apt-get install -y vsftpd ftp && \
+    rm -rf /var/lib/apt/lists/*
 
-    # iproute2
-
-# vsftpd expects its config at /etc/vsftpd.conf - replace
+# vsftpd expects its config at /etc/vsftpd.conf
 COPY ./tools/vsftpd.conf /etc/vsftpd.conf
 
-# On Debian, vsftpd requires a secure chroot directory (secure_chroot_dir) to exist. by default, the config points to /var/run/vsftpd/empty. if that directory does not exist inside the container, vsftpd refuses to start sessions
+# vsftpd needs the chroot directory to exist.
 RUN mkdir -p /var/run/vsftpd/empty && chmod 755 /var/run/vsftpd/empty
 
-# startup script 
 COPY ./tools/ftp-init.sh /usr/local/bin/ftp-init.sh
 RUN chmod +x /usr/local/bin/ftp-init.sh
 
-EXPOSE 21 30000-30009 
+EXPOSE 21 30000-30009
 
 ENTRYPOINT ["/usr/local/bin/ftp-init.sh"]

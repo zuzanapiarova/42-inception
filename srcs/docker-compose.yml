@@ -23,12 +23,15 @@ services:
     networks:
       - backend
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - wordpress-site:/var/www/html
     restart: "on-failure"
     environment:
-      WORDPRESS_DB_HOST: mariadb:${DB_PORT}
+      WORDPRESS_DB_HOST: mariadb:3306
       WORDPRESS_DB_NAME: ${DB_NAME}
       WORDPRESS_DB_USER: ${DB_USER}
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
@@ -57,7 +60,11 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
-      # MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "--silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   # bonus:
   adminer:
@@ -78,16 +85,14 @@ services:
     ports: 
       - "21:21"
       - "30000-30009:30000-30009"
-    depends_on:
-      - wordpress
     volumes:
       - wordpress-site:/var/www/html
     networks:
       - backend  
     environment:
-      FTP_USER: ${WORDPRESS_ADMIN_USER}
-      FTP_PASSWORD: ${WORDPRESS_ADMIN_PASSWORD}
-      DOMAIN_NAME: ${DOMAIN_NAME}
+      FTP_USER: ${FTP_USER}
+      FTP_PASSWORD: ${FTP_PASSWORD}
+      # PASV_ADDRESS: ${PASV_ADDRESS}
 
   redis:
     build: ./requirements/bonus/redis
@@ -99,43 +104,31 @@ services:
     restart: on-failure
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
-  github_actions:
-    build:
-      context: ./requirements/bonus/github_actions
-      args:
-        RUNNER_VERSION: ${RUNNER_VERSION}
-    image: github_actions
-    # volumes:
-    #   - github-actions-data:/runner
+  cadvisor:
+    build: ./requirements/bonus/cadvisor
+    image: cadvisor
+    restart: on-failure
+    ports:
+      - "8081:8080"
     networks:
       - backend
-    restart: on-failure
-    environment:
-      GITHUB_URL: ${GITHUB_URL} # can these stay here? If i remove them, will they not propagate to github ? 
-      RUNNER_TOKEN: ${RUNNER_TOKEN} # ! RUNNER_TOKEN from GitHub expires after registration - get new one from github actions site. For long-term setups, enterprises use ephemeral runners or actions-runner-controller to auto-refresh tokens
-      RUNNER_NAME: ${RUNNER_NAME}
-      $USER_ACCESS_TOKEN: ${USER_ACCESS_TOKEN}
-      RUNNER_VERSION: ${RUNNER_VERSION}
-      RUNNER_HOME: ${RUNNER_HOME} # mount for gha data goes here
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro # kernel information incl. cgroups with resource information as CPU usage, memory usage, memory limits, and network information
+      - /var/lib/docker:/var/lib/docker:ro # Docker containers and their filesystem/container metadata
 
 # named volumes backed by a specific host directories
 volumes:
   wordpress-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${DATA_DIR}/wordpress-data
   wordpress-site:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${DATA_DIR}/wordpress-site
-  # github-actions-data: TODO
 
-# blocks can be empty if we want the default config, compose will create them automatically
 networks:
   backend:
     driver: bridge

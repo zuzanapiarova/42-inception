@@ -1,6 +1,9 @@
 /srcs/.env
-/srcs/.keys/
+.keys/
 /tetris
 /static_site
+
+.vscode
+data/
 
 

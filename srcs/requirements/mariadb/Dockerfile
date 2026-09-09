@@ -1,6 +1,6 @@
 # MARIADB
 
-FROM debian:bullseye
+FROM debian:bookworm
 
 RUN apt-get update && \
     apt-get install -y mariadb-server && \
@@ -21,5 +21,4 @@ RUN chmod +x /01-db-init.sh
 
 # run init script with readiness check that waits until db is initialized so wordpress container wont start until DB is
 ENTRYPOINT ["/01-db-init.sh"]
-CMD ["mariadbd", "--console"]
-# CMD ["mysqld_safe", "--console"]
+CMD ["mariadbd", "--console", "--user=mysql"]

@@ -3,7 +3,7 @@
 set -e
 
 # Start MariaDB in the background
-mariadbd --skip-networking &
+mariadbd --skip-networking --user=mysql &
 
 # store mariadb pid to stop it later
 MYSQL_PID=$!

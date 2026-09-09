@@ -31,6 +31,12 @@ TODO:
 - First server block serves the wordpress application on port 443.
 - Second server block serves the static website on port 80. It is a placeholder tetris game.
 
+Domain name points to a local address.
+Browser reads hosts and turns the domain into 127.0.0.1.
+Browser connects to 127.0.0.1:443.
+The OS sees Nginx is listening on 443 and passes the connection to it.
+Nginx uses the domain in the request to choose the right server block and certificate.
+
 #### Wordpress Site
 It forwards php requests for html pages to wordpress container and serves static files directly from mounted volume.
 
@@ -40,9 +46,15 @@ It forwards php requests for html pages to wordpress container and serves static
 
 Also mounts ./.keys/ssl from host to /etc/ssl on the container to add keys without baking them into the container for security and easier rotation. TODO - should i rather generate the keys on container start ? 
 
+Verify its working:
+1. `https://${DOMAIN_NAME}:443` - wordpress website
+
 #### Static Website (BONUS)
 
+A simple html+css+js website for playing tetris. 
 
+Verify its working:
+1. `http://${DOMAIN_NAME}:81` - static website
 
 ### WORDPRESS
 
@@ -57,6 +69,10 @@ It mounts host volume /home/zpiarova/data/wordpress-data to /var/www/html on the
 wp core install creates a default sample page and a default Hello world post.
 init script creates 3 posts. 
 
+Verify it's working:
+1. Check the website is working and constructing pages
+2. `https://zpiarova.42.fr/wp-admin` - wp admin page - admin web UI, check users match the adminer
+
 ### MARIADB
 
 mariadb-server installs client tools needed to interact with it including mysql.
@@ -69,7 +85,16 @@ Mariadb mounts `/home/zpiarova/data/wordpress-data` on host to `/var/lib/mysql` 
 
 Mariadbd then runs on the container and waits for db requests from the wordpress container.
 
+Verify it's working:
+1. Check the site works and gets data from the db
+2. Check adminer (bonus) for the data
+
 ### ADMINER
+
+Container runs a database client with web UI view to provide admin view of the database.
+
+Verify its working:
+1. Open `https://${DOMAIN_NAME}:8080` - use db credentials from .env (for server use 'mariadb' - container name from network)
 
 ### REDIS
 
@@ -79,13 +104,63 @@ Verify its working:
 1. Redis is alive: `docker exec srcs-redis-1 redis-cli -a <password> ping`: should return `PONG`
 2. Wp can communicate with redis: `docker exec srcs-wordpress-1 wp redis status --allow-root`: should return Status: Connected, Client: PhpRedis, Drop-in: Valid
 3. Redis actually caches data: `docker exec srcs-redis-1 redis-cli -a <password> DBSIZE` (run after visiting WordPress site a few times): should return non zero value
-- 
 
 ### FTP
 
-FTP mounts the /home/zpiarova/data/wordpress-site to /var/www/html so it can access the same filesystem as wordpress/nginx.
+FTP mounts the /home/zpiarova/data/wordpress-site to /var/www/html so it can access the same filesystem as wordpress and nginx.
 
-### GITHUB ACTIONS RUNNER
+Verify it works by:
+0. check ftp container is pointing to the volume of WordPress website: `docker volume inspect srcs_wordpress-site`
+1. start the container: `docker exec -it ftp bash`
+2. create a file: `echo "Hello, FTP server!" >> hello_ftp.txt`
+3. use ftp command: `put hello_ftp.txt`
+4. access the static file at `https://zpiarova.42.fr/test.txt`
+
+**Testing from within the container**
+
+FTP in this project is a shared file-transfer service mounted on the same WordPress website volume as Nginx and WordPress, so uploaded files appear immediately in the web root and can be served over HTTP/HTTPS. 
+
+Testing FTP from the machine in active mode often fails because the FTP server has to connect back to the client for the data channel, and that callback path is usually blocked or broken by Docker, Colima, or local NAT on macOS.
+
+Testing from inside the FTP container is acceptable because the client and server communicate inside the Docker network, so the data connection stays within the container environment and avoids the host-side networking problem.
+
+### CADVISOR
+
+cAdvisor is an open-source tcontainer-monitoring agent/collectorool created by Google that collects, processes, and exports performance metrics and resource usage from running containers. It gets metrics about the containers as Docker workloads, such as:
+- CPU usage
+- memory usage
+- network traffic
+- filesystem usage
+- container resource limits
+
+cAdvisor is simply a convenient source of Docker container metrics - Prometheus can scrape anything that exposes Prometheus-format metrics, and cAdvisor gives Prometheus CPU/memory/network metrics for Docker containers. 
+
+cAdvisor is primarily a container-monitoring agent/collector, but because it exposes the metrics it collects in Prometheus format, it can also act as a Prometheus metrics source/exporter. An exporter is a small service that takes metrics from something that doesn't speak Prometheus's format and exposes them in a format Prometheus can scrape. 
+
+cAdvisor has an unusual job: it is a container that needs to observe the host and the other containers. So it must mount locations with information about the Docker host (with read access) - the mounts aren't for cAdvisor's own application data. 
+
+*This is a preparation for monitoring with Prometheus and Grafana:* cAdvisor collects container-level metrics and exposes them in Prometheus's metrics format. cAdvicor, as other typical exporter/application exposes `/metrics`. A Prometheus server can periodically scrape cAdvisor's /metrics endpoint and store those metrics as time series, which can then be queried using PromQL and visualized with tools such as Grafana.
+
+*cAdvisor is historically integrated directly into the Kubernetes kubelet, before CRI (container runtime integration). Kubernetes documentation says the kubelet collects pod/container metrics via cAdvisor, and the kubelet exposes them through endpoints such as /metrics/cadvisor.*
+
+Verify that it works:
+1. Access the exposed endpoint: `curl http://localhost:8081/metrics`
+2. Output is a large text containing Prometheus-formatted metrics as
+```
+You'll see things roughly like:
+# HELP container_cpu_usage_seconds_total Cumulative cpu time consumed
+# TYPE container_cpu_usage_seconds_total counter
+container_cpu_usage_seconds_total{container_label_com_docker_compose_service="wordpress",...} 12.34
+
+# HELP container_memory_usage_bytes Current memory usage in bytes
+# TYPE container_memory_usage_bytes gauge
+container_memory_usage_bytes{container_label_com_docker_compose_service="mariadb",...} 123456789
+
+# HELP container_network_receive_bytes_total Cumulative count of bytes received
+# TYPE container_network_receive_bytes_total counter
+container_network_receive_bytes_total{...} 456789
+...
+```
 
 ## Instructions
 
@@ -99,14 +174,6 @@ Docker Engine and Docker Compose are required on the machine.
 2. Run `make` from the root of this repository.
 3. To stop containers but persist volumes, run `make clean`.
 4. When finished, run `make fclean` to stop and remove containers and clear volumes.
-
-**Use:**
-1. `https://${DOMAIN_NAME}:443` - wordpress website
-2. `https://${DOMAIN_NAME}:8080` - adminer - admin view of wordpres web - use db credentials from .env (for server use 'mariadb' - container name from network)
-3. `https://zpiarova.42.fr/wp-admin` - wp admin page - admin web UI, check users match the adminer
-4. `http://${DOMAIN_NAME}:81` - static website
-5. 
-
 
 ## Resources
 

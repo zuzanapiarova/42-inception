@@ -1,16 +1,15 @@
 # ADMINER
 
-FROM debian:bullseye
+FROM debian:bookworm
 
 RUN apt-get update && apt-get install -y \
     apache2 \
-    php7.4 \
-    libapache2-mod-php\
-    php7.4-curl \
-    php7.4-cli \
-    php7.4-mysql \
-    php-gd \
-    mariadb-server \ 
+    php8.2 \
+    libapache2-mod-php8.2 \
+    php8.2-curl \
+    php8.2-cli \
+    php8.2-mysql \
+    php8.2-gd \
     wget
 
 WORKDIR /var/www/html

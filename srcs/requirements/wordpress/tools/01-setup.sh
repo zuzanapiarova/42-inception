@@ -1,6 +1,6 @@
 #! /bin/bash
 
-set -e 
+set -eu
 
 #  TODO: paths as /blabla resolve to index, must change to return 404
 
@@ -18,10 +18,10 @@ wp config create \
     --skip-check
 fi
 
-until wp db check --allow-root; do
-    echo "Waiting for database to be ready..."
-    sleep 3
-done
+# until wp db check --allow-root; do
+#     echo "Waiting for database to be ready..."
+#     sleep 3
+# done
 
 if ! wp core is-installed --allow-root; then
     # installs WordPress core: sets site URL(--url), site title (--title), creates admin account (--admin_user, --admin_password, --admin_email)

@@ -1,6 +1,6 @@
 # REDIS
 
-FROM debian:bullseye
+FROM debian:bookworm
 
 RUN apt-get update -y && \
     apt-get install -y redis-server
@@ -25,7 +25,7 @@ RUN chmod +x /usr/local/bin/01-entrypoint.sh
 ENTRYPOINT ["01-entrypoint.sh"]
 CMD ["redis-server", "/etc/redis/redis.conf"]
 
-# FROM debian:bullseye
+# FROM debian:bookworm
 
 # RUN apt-get update -y && \
 #     apt-get install -y redis && \
