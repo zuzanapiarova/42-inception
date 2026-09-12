@@ -3,6 +3,7 @@ DOCKER_COMPOSE_FILE = ./srcs/docker-compose.yml
 # local dev
 DATA_DIR = ./data
 # todo: change to prod  location 
+# todo: why do i even have to do this ? why do i need to create the data dirs ? is it a mac problem?
 # prod / VM
 # DATA_DIR = /home/zpiarova/data
 
