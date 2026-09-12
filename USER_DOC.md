@@ -31,10 +31,14 @@ make fclean
 
 ## Access
 
-- Website: `https://<DOMAIN_NAME>:443`
+**Mandatory**
+- Website: `https://<DOMAIN_NAME>`
 - WordPress admin panel: `https://<DOMAIN_NAME>/wp-admin`
-- Adminer: `http://<DOMAIN_NAME>:8080`
+
+**Bonus**
 - Static site: `http://<DOMAIN_NAME>:81`
+- Adminer: `http://<DOMAIN_NAME>:8080`
+- cAdvisor: `curl http://<DOMAIN_NAME>:8081/metrics`
 
 Replace `<DOMAIN_NAME>` with the value from `srcs/.env`.
 

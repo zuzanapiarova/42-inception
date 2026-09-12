@@ -4,26 +4,56 @@
 
 ## Description
 
-A project with 3 containers that communicate over docker network. 
+The task is to set up a small infrastructure composed of different services to learn the basics of system adinistration. 
+The mandatory part requires 3 containers that communicate over docker network. Bonus adds 4 additional containers.
 
 ### REQUIREMENTS
-**Mariadb** container creates db to store the contents of the wordpress sites.
-**Wordpress** container runs php-fpm service that gets php requests and returns html pages.
-**Nginx** serves static sites and also proxies php requests to the wordpress container.
-**/home/zpiarova/data/wordpress-data** is mounted to mariadb db and persists data.
-**/home/zpiarova/data/wordpress-site** is mounted to wordpress and nginx containers to store static files - nginx serves them, wordpress stores them here. 
+
+- **Mariadb** container creates db to store the contents of the wordpress sites.
+- **Wordpress** container runs php-fpm service that gets php requests and returns html pages.
+- **Nginx** serves static sites and also proxies php requests to the wordpress container.
+
++ **/home/zpiarova/data/wordpress-data** is mounted to mariadb db and persists data.
++ **/home/zpiarova/data/wordpress-site** is mounted to wordpress and nginx containers to store static files - nginx serves them, wordpress stores them here. 
 
 ### BONUS
-**Adminer** container runs a database client with web UI view to provide admin view of the database.
-**Redis** container 
+- **Adminer** container runs a database client with a web UI so the MariaDB database can be inspected and managed from the browser.
+- **FTP** container runs an FTP server mounted to the shared WordPress website volume so uploaded files appear directly in the web root.
+- **Redis** container provides in-memory caching for WordPress and exposes a health check so the app can verify its connection to the cache.
+- **cAdvisor** container exposes Docker and host resource metrics on the `/metrics` endpoint for monitoring and observability.
+- **Static Website** serves a small HTML/CSS/JS Tetris game on a dedicated HTTP port and is mounted as a separate site directory.
 
-
-TODO:
-
-TODO:
 ```mermaid
+flowchart TB
+    subgraph Containers["Containers"]
+        direction LR
+        Nginx["nginx\n:80, :443"]
+        WP["wordpress\n:9000"]
+        DB["mariadb\n:3306"]
+        Adminer["adminer\n:8080"]
+        FTP["ftp\n:21, :30000-30009"]
+        Redis["redis\n:6379"]
+        Static["static website\n:81"]
+        Cadvisor["cadvisor\n:8081"]
+    end
 
+    subgraph Mounts["Mounted volumes / host sources"]
+        direction LR
+        SSL["SSL keys\n./.keys/ssl -> /etc/ssl"]
+        SiteVol[("wordpress-site\n/var/www/html")]
+        DBVol[("wordpress-data\n/var/lib/mysql")]
+        CadvisorSources["host metrics\n/ + /var/run + /sys + /var/lib/docker + /cgroup"]
+    end
+
+    Nginx --> SSL
+    Nginx --> SiteVol
+    WP --> SiteVol
+    FTP --> SiteVol
+    DB --> DBVol
+    Cadvisor --> CadvisorSources
 ```
+
+## Containers 
 
 ### NGINX
 
@@ -48,13 +78,6 @@ Also mounts ./.keys/ssl from host to /etc/ssl on the container to add keys witho
 
 Verify its working:
 1. `https://${DOMAIN_NAME}:443` - wordpress website
-
-#### Static Website (BONUS)
-
-A simple html+css+js website for playing tetris. 
-
-Verify its working:
-1. `http://${DOMAIN_NAME}:81` - static website
 
 ### WORDPRESS
 
@@ -89,14 +112,21 @@ Verify it's working:
 1. Check the site works and gets data from the db
 2. Check adminer (bonus) for the data
 
-### ADMINER
+### STATIC WEBSITE (BONUS)
+
+A simple html+css+js website for playing tetris. 
+
+Verify its working:
+1. `http://${DOMAIN_NAME}:81` - static website
+
+### ADMINER (BONUS)
 
 Container runs a database client with web UI view to provide admin view of the database.
 
 Verify its working:
 1. Open `https://${DOMAIN_NAME}:8080` - use db credentials from .env (for server use 'mariadb' - container name from network)
 
-### REDIS
+### REDIS (BONUS)
 
 R
 
@@ -105,7 +135,7 @@ Verify its working:
 2. Wp can communicate with redis: `docker exec srcs-wordpress-1 wp redis status --allow-root`: should return Status: Connected, Client: PhpRedis, Drop-in: Valid
 3. Redis actually caches data: `docker exec srcs-redis-1 redis-cli -a <password> DBSIZE` (run after visiting WordPress site a few times): should return non zero value
 
-### FTP
+### FTP (BONUS)
 
 FTP mounts the /home/zpiarova/data/wordpress-site to /var/www/html so it can access the same filesystem as wordpress and nginx.
 
@@ -124,7 +154,7 @@ Testing FTP from the machine in active mode often fails because the FTP server h
 
 Testing from inside the FTP container is acceptable because the client and server communicate inside the Docker network, so the data connection stays within the container environment and avoids the host-side networking problem.
 
-### CADVISOR
+### CADVISOR (BONUS)
 
 cAdvisor is an open-source tcontainer-monitoring agent/collectorool created by Google that collects, processes, and exports performance metrics and resource usage from running containers. It gets metrics about the containers as Docker workloads, such as:
 - CPU usage

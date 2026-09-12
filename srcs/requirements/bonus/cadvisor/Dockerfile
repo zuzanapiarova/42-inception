@@ -35,6 +35,6 @@ RUN apt-get update && \
 
 COPY --from=builder /build/_output/cadvisor /usr/local/bin/cadvisor
 
-EXPOSE 8080
+EXPOSE 8081
 
 ENTRYPOINT ["/usr/local/bin/cadvisor"]

@@ -115,19 +115,30 @@ services:
     image: cadvisor
     restart: on-failure
     ports:
-      - "8081:8080"
+      - "8081:8081"
     networks:
       - backend
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
-      - /sys:/sys:ro # kernel information incl. cgroups with resource information as CPU usage, memory usage, memory limits, and network information
-      - /var/lib/docker:/var/lib/docker:ro # Docker containers and their filesystem/container metadata
+      - /sys:/sys:ro # kernel info incl. cgroups with resource information as CPU usage, memory usage, memory limits, and network information
+      - /var/lib/docker:/var/lib/docker:ro # Docker containers and their metadata
 
 # named volumes backed by a specific host directories
 volumes:
-  wordpress-data:
   wordpress-site:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/zpiarova/data/wordpress-site
+
+  wordpress-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/zpiarova/data/wordpress-data
 
 networks:
   backend:
