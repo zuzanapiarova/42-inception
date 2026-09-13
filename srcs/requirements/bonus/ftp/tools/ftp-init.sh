@@ -16,7 +16,7 @@ sed -i '/^pasv_address=/d' /etc/vsftpd.conf
 echo "pasv_address=$PASV_ADDRESS" >> /etc/vsftpd.conf
 
 # Allow FTP and WordPress to share the mounted directory.
-chown -R "$FTP_USER":www-data /var/www/html || true
+chown -R "$FTP_USER":www-data /var/www/html
 chmod -R 775 /var/www/html
 
 exec /usr/sbin/vsftpd /etc/vsftpd.conf

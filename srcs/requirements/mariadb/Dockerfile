@@ -8,7 +8,7 @@ RUN apt-get update && \
     # Docker optimization - remove cached package metadata to keep image lightweight
 
 # ensure the socket exists even if mariadb is not using it, since mariadb server is looking for it, and chown to mariadb user and group which runs as the mysql user
-RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld || true
+RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
 
 # load config that makes mariadb connect on all interfaces, not only locally on 127.0.0.1 (default)- without this, other containers cannot reach it even if in same Docker network
 COPY ./tools/99-docker.cnf /etc/mysql/mariadb.conf.d/99-docker.cnf

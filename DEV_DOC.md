@@ -10,7 +10,13 @@
 
 1. VirtualBox --> New
 2. VM Name, folder /goinfre/zpiarova, no iso, type linux, versin debian 64bit, for other setup use defaults
-3. set port forwarding: settings --> network --> advanced --> port forwarding --> add rule --> Rule1 - TCP - 127.0.0.1 - 4242 - (guest ip empty) - 22
+3. set port forwarding: settings --> network --> advanced --> port forwarding --> add rules:
+  Rule 1 - TCP - 127.0.0.1 - 4242 - (guest ip empty) - 22
+  Rule 2 - TCP port 443 --> 443
+  <!-- Rule 3 - TCP port 81 --> 81
+  Rule 4 - TCP port 8080 --> 8080
+  Rule 5 - TCP port 21 --> 21
+  Rule 6 - TCP port 8081 --> 8081 -->
 
 3. upon starting select the iso image - I used `debian-13.1.0-amd64-netinst.iso`
 4. Select Install for manual install
@@ -56,6 +62,7 @@ echo \
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 sudo gpasswd -a $USER docker
+
 newgrp docker
 ```
 c. to access webtites 
