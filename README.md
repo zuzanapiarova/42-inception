@@ -206,7 +206,7 @@ Docker Engine and Docker Compose are required on the machine.
 
 ## Resources
 
-Docker and compose documentations were used in devleopment. 
+Docker and compose documentations were used for learning.
 AI was used to answer questions that came up about the topic to deepen my knowledge.
 
 ## Project Description
