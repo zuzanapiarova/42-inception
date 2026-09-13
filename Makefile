@@ -4,6 +4,7 @@ ENV_TEMPLATE = ./srcs/.env.template
 
 -include $(ENV_FILE)
 
+SSL_DIR = ./srcs/.keys/ssl
 SSL_CERT = $(SSL_DIR)/fullchain.pem
 SSL_KEY = $(SSL_DIR)/privkey.pem
 

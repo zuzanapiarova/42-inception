@@ -11,7 +11,7 @@ services:
       - "443:443"
     volumes:
       - wordpress-site:/var/www/html:ro # read-only
-      - ${SSL_DIR}:/etc/ssl:ro # mount keys instead of copying so they are not baked into the image
+      - ../${SSL_DIR}:/etc/ssl:ro # mount keys instead of copying so they are not baked into the image
     restart: "on-failure"
 
   wordpress:
