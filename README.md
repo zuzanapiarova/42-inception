@@ -74,7 +74,7 @@ It forwards php requests for html pages to wordpress container and serves static
 
 **For static file requests** (GET *.jpg, *.css, *.javascript, fonts, ...), it serves them from /var/www/html which is also mounted to the wordpress container and on the host volume /home/zpiarova/data/wordpress-site. No php is involved.
 
-Also mounts ./.keys/ssl from host to /etc/ssl on the container to add keys without baking them into the container for security and easier rotation. TODO - should i rather generate the keys on container start ? 
+Generate the SSL certificates and private keys on the host andmount them rather than generating or copying them during the image build. This keeps the private key out of the Docker image, so anyone with access to the image cannot simply extract it, and also makes certificate rotation easier: when the certificate expires, I can replace the files on the host without rebuilding the Docker image.
 
 Verify its working:
 1. `https://${DOMAIN_NAME}:443` - wordpress website
@@ -124,11 +124,11 @@ Verify its working:
 Container runs a database client with web UI view to provide admin view of the database.
 
 Verify its working:
-1. Open `https://${DOMAIN_NAME}:8080` - use db credentials from .env (for server use 'mariadb' - container name from network)
+1. Open `https://${DOMAIN_NAME}:8080` - use db credentials from .env (for server use container name from docker network - 'mariadb')
 
 ### REDIS (BONUS)
 
-R
+TODO: description
 
 Verify its working:
 1. Redis is alive: `docker exec srcs-redis-1 redis-cli -a <password> ping`: should return `PONG`
@@ -177,7 +177,6 @@ Verify that it works:
 1. Access the exposed endpoint: `curl http://localhost:8081/metrics`
 2. Output is a large text containing Prometheus-formatted metrics as
 ```
-You'll see things roughly like:
 # HELP container_cpu_usage_seconds_total Cumulative cpu time consumed
 # TYPE container_cpu_usage_seconds_total counter
 container_cpu_usage_seconds_total{container_label_com_docker_compose_service="wordpress",...} 12.34

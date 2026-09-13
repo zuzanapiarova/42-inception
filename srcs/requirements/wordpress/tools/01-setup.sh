@@ -4,10 +4,12 @@ set -eu
 
 #  TODO: paths as /blabla resolve to index, must change to return 404
 
-# chown of mounted volume chown -R www-data:www-data /var/www/html to be here 
-chown -R www-data:www-data /var/www/html
+# Debian’s PHP-FPM package normally runs its worker pool as www-data - must chown the mount dir
+chown -R www-data:www-data /var/www/html || true
 
-# only run setup if WordPress hasn’t been configured yet - checks if setup file wp-config.php exists in /var/www/html
+# --------------------------------------------
+# Config WP via config file and connect to DB
+# --------------------------------------------
 if [ ! -f /var/www/html/wp-config.php ]; then
 wp config create \
     --dbname="$WORDPRESS_DB_NAME" \
@@ -18,10 +20,9 @@ wp config create \
     --skip-check
 fi
 
-# until wp db check --allow-root; do
-#     echo "Waiting for database to be ready..."
-#     sleep 3
-# done
+# ---------------------------
+# WP install and create
+# ---------------------------
 
 if ! wp core is-installed --allow-root; then
     # installs WordPress core: sets site URL(--url), site title (--title), creates admin account (--admin_user, --admin_password, --admin_email)

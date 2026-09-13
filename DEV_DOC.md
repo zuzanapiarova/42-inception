@@ -5,7 +5,10 @@
 - Docker Engine
 - Docker Compose
 - A filled `srcs/.env` file based on `srcs/.env.template`
-- The project domain mapped in `/etc/hosts`
+
+## Set Up VM
+
+TODO
 
 ## Environment Setup
 

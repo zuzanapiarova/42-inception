@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 # PHP-FPM configuration
-# COPY ./tools/zzz-docker.conf /etc/php/8.2/fpm/pool.d/zzz-docker.conf
 RUN sed -i \
     -e 's|^listen = .*|listen = 9000|' \
     -e 's|^;*clear_env = .*|clear_env = no|' \
