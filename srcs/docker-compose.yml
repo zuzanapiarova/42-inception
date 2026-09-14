@@ -1,3 +1,5 @@
+# todo: tag images with inception
+# entrypoints cant be there 
 services:
   nginx:
     build: "./requirements/nginx"
