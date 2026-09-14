@@ -77,7 +77,8 @@ It forwards php requests for html pages to wordpress container and serves static
 Generate the SSL certificates and private keys on the host andmount them rather than generating or copying them during the image build. This keeps the private key out of the Docker image, so anyone with access to the image cannot simply extract it, and also makes certificate rotation easier: when the certificate expires, I can replace the files on the host without rebuilding the Docker image.
 
 Verify its working:
-1. `https://${DOMAIN_NAME}:443` - wordpress website
+1. `https://${DOMAIN_NAME}:8443` - wordpress website - 8443 because on host 443 is not available
+2. `curl -vk https://localhost:443` - on the vm check the correct port is serving
 
 ### WORDPRESS
 
@@ -207,6 +208,7 @@ Docker Engine and Docker Compose are required on the machine.
 ## Resources
 
 Docker and compose documentations were used for learning.
+VM Setup guide frmo https://github.com/Bakr-1/inceptionVm-guide.
 AI was used to answer questions that came up about the topic to deepen my knowledge.
 
 ## Project Description

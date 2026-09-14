@@ -10,24 +10,31 @@
 
 1. VirtualBox --> New
 2. VM Name, folder /goinfre/zpiarova, no iso, type linux, versin debian 64bit, for other setup use defaults
-3. set port forwarding: settings --> network --> advanced --> port forwarding --> add rule --> Rule1 - TCP - 127.0.0.1 - 4242 - (guest ip empty) - 22
+3. set port forwarding: settings --> network --> advanced --> port forwarding --> add rules --> 
+- Rule 1 - TCP - 127.0.0.1 - 4242 - (guest ip empty) - 22 - SSH
+- Rule 2 - TCP - 127.0.0.1 - 8443 - (guest ip empty) - 443 - 443 entry to nginx
+
 
 3. upon starting select the iso image - I used `debian-13.1.0-amd64-netinst.iso`
 4. Select Install for manual install
-5. create root password and user 
+5. hostname debian, create root password and user, add domain
 6. In partition selection, select first - Guided- use entire disk, confirm next one, and in partitioning scheme choose All files in one
 7. Then just finish, write changes to disk: yes
+
 8. media instalation: continue, scan extra instalation media: yes, then again: no
 9. debian archive mirror: deb.debian.org
 10. for proxy jsut default enter
+
 11. software selection: SSH Server, standard system utilities
 12. install GRUB bootloader to primary drive; yes
 13. Select disk to install grub on: device for boot loader installation - in 42 /dev/sda
 14. Installation complete - continue
+
 15. Use the VM - login with username and password set during config
+
 16. Switch to root: `su -`
 17. Install sudo: `apt-get update && apt-get upgrade && apt-get install sudo -y` and add user `adduser <username> sudo`
-18. Edit visudo so that ..TODO why.. `sudo visudo` - under root ALL=(ALL:ALL) ALL add username ALL=(ALL:ALL) ALL, and ctrl+X and yes to save
+18. Edit visudo so that ..TODO why.. `sudo visudo` - under root ALL=(ALL:ALL) ALL add username ALL=(ALL) ALL, and ctrl+X and yes to save
 19. for ssh edit /etc/ssh/sshd_config and uncomment Port  22 (XXX no change from 22 to 4242)
 20. Restart sshd `sudo service ssh restart`
 
@@ -53,6 +60,7 @@ echo \
   "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
+sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 sudo gpasswd -a $USER docker
