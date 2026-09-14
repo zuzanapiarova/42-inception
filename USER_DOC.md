@@ -36,29 +36,38 @@ make fclean
 - WordPress admin panel: `https://<DOMAIN_NAME>/wp-admin`
 
 **Bonus**
-- Static site: `http://<DOMAIN_NAME>:81`
+- Static site: `http://<DOMAIN_NAME>:80`
 - Adminer: `http://<DOMAIN_NAME>:8080`
 - cAdvisor: `curl http://<DOMAIN_NAME>:8081/metrics`
 
 Replace `<DOMAIN_NAME>` with the value from `srcs/.env`.
 
-## Credentials
+## Evaluation
 
-All credentials are defined in `srcs/.env`, created from `srcs/.env.template`.
+1. Check all services are down and the volume directories are clean - all should be empty:
+```
+ls -la /home/zpiarova/data
+docker ps -a
+docker images -a
+```
 
-- WordPress and MariaDB credentials are stored there.
-- Adminer uses the same database credentials.
-- FTP and Redis credentials are also defined there.
+If not, stop and remove all:
+```
+docker stop $(docker ps -qa) # stop all running containers
+docker rm $(docker ps -qa) # remove all containers
+docker rmi $(docker images -qa) # remove all images
+docker volume rm $(docker volume ls -q) # remove all volumes
+docker network rm $(docker network ls -q) # remove all networks
+```
 
-Keep `srcs/.env` private and do not commit it.
+2. Check port forwarding is only for 22(SSH) and 443 (nginx entrypoint) in the VM settings.
+3. Clone the repo and cd into it
+4. make - will fail if .env is not set up - set up envs based on the template
+5. Check containers are running: `docker ps -a`
+6. Check volume are set up and are named: `docker volume ls`
+7. Check website is up: `curl -vk https://zpiarova.42.fr` (needs -vk because of self signed cert, and heeds https because curl defaults to http)
 
-## Check Services
 
-You can verify the stack by checking the containers and opening the website.
 
-- List running containers: `docker ps`
-- Check a specific container: `docker compose -f srcs/docker-compose.yml ps`
-- Test the website in a browser and confirm WordPress loads.
-- For Adminer, sign in with the database credentials and connect to host `mariadb`.
-
-If the page does not load, check that the containers are running and that the domain points to `127.0.0.1` in `/etc/hosts`.
+Bonus: 
+1. Static website: `curl zpiarova.42.fr:81` (81 on vm is mapped to 80 on container)

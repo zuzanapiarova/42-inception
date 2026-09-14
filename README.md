@@ -27,13 +27,13 @@ The mandatory part requires 3 containers that communicate over docker network. B
 flowchart TB
     subgraph Containers["Containers"]
         direction LR
-        Nginx["nginx\n:80, :443"]
+        Nginx["nginx\:443"]
         WP["wordpress\n:9000"]
         DB["mariadb\n:3306"]
         Adminer["adminer\n:8080"]
         FTP["ftp\n:21, :30000-30009"]
         Redis["redis\n:6379"]
-        Static["static website\n:81"]
+        Static["static website(nginx container)\n:81"]
         Cadvisor["cadvisor\n:8081"]
     end
 
@@ -118,7 +118,7 @@ Verify it's working:
 A simple html+css+js website for playing tetris. 
 
 Verify its working:
-1. `http://${DOMAIN_NAME}:81` - static website
+1. `http://${DOMAIN_NAME}:80` - static website
 
 ### ADMINER (BONUS)
 
