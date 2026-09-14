@@ -6,7 +6,7 @@ set -eu
 
 # Debian's PHP-FPM package normally runs its worker pool as www-data.
 # The WordPress volume needs to be writable by PHP-FPM.
-chown -R www-data:www-data /var/www/html || true
+chown -R www-data:www-data /var/www/html
 
 # --------------------------------------------
 # Configure WordPress via wp-config.php

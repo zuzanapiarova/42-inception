@@ -4,7 +4,7 @@ set -e
 
 # Ensure MariaDB can write to the mounted data directory.
 mkdir -p /var/lib/mysql /run/mysqld
-chown -R mysql:mysql /var/lib/mysql /run/mysqld || true
+chown -R mysql:mysql /var/lib/mysql /run/mysqld
 
 # Start MariaDB in the background
 mariadbd --skip-networking --user=mysql &

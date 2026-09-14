@@ -14,7 +14,6 @@
 - Rule 1 - TCP - 127.0.0.1 - 4242 - (guest ip empty) - 22 - SSH
 - Rule 2 - TCP - 127.0.0.1 - 8443 - (guest ip empty) - 443 - 443 entry to nginx
 
-
 3. upon starting select the iso image - I used `debian-13.1.0-amd64-netinst.iso`
 4. Select Install for manual install
 5. hostname debian, create root password and user, add domain
@@ -64,6 +63,7 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 sudo gpasswd -a $USER docker
+
 newgrp docker
 ```
 c. gui and browser
