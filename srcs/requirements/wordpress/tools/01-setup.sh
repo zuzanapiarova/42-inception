@@ -5,7 +5,7 @@ set -eu
 #  TODO: paths as /blabla resolve to index, must change to return 404
 
 # Debian’s PHP-FPM package normally runs its worker pool as www-data - must chown the mount dir
-chown -R www-data:www-data /var/www/html || true
+chown -R www-data:www-data /var/www/html
 
 # --------------------------------------------
 # Config WP via config file and connect to DB

@@ -4,11 +4,10 @@ ENV_TEMPLATE = ./srcs/.env.template
 
 -include $(ENV_FILE)
 
-SSL_DIR = ./srcs/.keys/ssl
 SSL_CERT = $(SSL_DIR)/fullchain.pem
 SSL_KEY = $(SSL_DIR)/privkey.pem
 
-all: env hosts volumes certs up
+all: up
 
 env:
 	@if [ ! -f "$(ENV_FILE)" ]; then \
@@ -25,7 +24,7 @@ env:
 	done < "$(ENV_FILE)"
 
 hosts:
-	@grep -qF "zpiarova.42.fr" /etc/hosts || \
+	@grep -qE '^[[:space:]]*127\.0\.0\.1[[:space:]]+zpiarova\.42\.fr([[:space:]]|$$)' /etc/hosts || \
 		echo "127.0.0.1 zpiarova.42.fr" | sudo tee -a /etc/hosts > /dev/null
 
 # prepare data directories
@@ -49,7 +48,7 @@ certs:
 	fi
 
 # start
-up: volumes
+up: env hosts volumes certs
 	docker compose -f $(DOCKER_COMPOSE_FILE) up -d --build
 
 # rebuild
