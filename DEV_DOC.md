@@ -66,7 +66,14 @@ sudo gpasswd -a $USER docker
 
 newgrp docker
 ```
-c. to access webtites 
+c. gui and browser
+```
+sudo apt update
+sudo apt install task-gnome-desktop firefox-esr
+
+sudo reboot
+```
+<!-- c. to access webtites  -->
 `startx`
 
 25. Clone the folder in the VM. If making any changes, dont forget to git push!!!!
