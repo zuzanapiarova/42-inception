@@ -31,7 +31,7 @@ services:
       - wordpress-site:/var/www/html
     restart: unless-stopped
     environment:
-      WORDPRESS_DB_HOST: mariadb:3306
+      WORDPRESS_DB_HOST: mariadb:3307
       WORDPRESS_DB_NAME: ${DB_NAME}
       WORDPRESS_DB_USER: ${DB_USER}
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
@@ -50,7 +50,7 @@ services:
     build: "./requirements/mariadb"
     image: mariadb
     expose:
-      - "3306"
+      - "3307"
     networks:
       - inception
     volumes:
