@@ -1,6 +1,6 @@
 # Inception
 
-*This project has been created as part of the 42 curriculum by zpiarova.*
+*This project has been created as part of the 42 curriculum by zpiarova*
 
 ## Description
 
@@ -198,7 +198,7 @@ container_network_receive_bytes_total{...} 456789
 Docker Engine and Docker Compose are required on the machine.
 
 **Start:**
-1. Create an `.env` in `./srcs/` and populate it with values according to the `./srcs/.env.template`.
+1. Create an `.env` in `./srcs/` and populate it with values according to the `./srcs/.env.example`.
 2. Makefile cannot read .env. Make sure the environment variables on top of Makefile match the respective ones in env.
 3. Edit `/etc/hosts` to include `127.0.0.1       zpiarova.42.fr (the DOMAIN_NAME from env)`
 2. Run `make` from the root of this repository.
@@ -207,11 +207,20 @@ Docker Engine and Docker Compose are required on the machine.
 
 ## Resources
 
-Docker and compose documentations were used for learning.
-VM Setup guide frmo https://github.com/Bakr-1/inceptionVm-guide.
-AI was used to answer questions that came up about the topic to deepen my knowledge.
+- Docker and compose documentations were used for learning.
+- VM Setup guide from https://github.com/Bakr-1/inceptionVm-guide.
+- AI was used to answer questions that came up about the topic to deepen my knowledge and find which dependencies do the executed programs in each container need and to explore configuration files options for executables that consume them.
 
 ## Project Description
+
+The evaluated learner has to explain to you in simple terms:
+
+- How Docker and docker compose work
+- The difference between a Docker image used with docker compose and without docker compose
+- The benefit of Docker compared to VMs
+- The pertinence of the directory structure required for this project (an example is provided in the subject's PDF file)
+- A simple explanation of docker-network
+
 ◦ Virtual Machines vs Docker
 ◦ Secrets vs Environment Variables 
 ◦ Docker Network vs Host Network 

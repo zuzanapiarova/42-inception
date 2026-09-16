@@ -34,7 +34,6 @@ if ! wp core is-installed --allow-root; then
         --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
         --admin_email="$WORDPRESS_ADMIN_EMAIL" \
         --allow-root
-
     echo "WordPress core installed."
 fi
 
@@ -47,7 +46,6 @@ if ! wp user get "$WORDPRESS_USER" --field=ID --allow-root >/dev/null 2>&1; then
         --role=author \
         --user_pass="$WORDPRESS_USER_PASSWORD" \
         --allow-root
-
     echo "WordPress user created."
 fi
 
@@ -70,7 +68,6 @@ if [ -z "$HOME_ID" ]; then
         --post_status=publish \
         --porcelain \
         --allow-root)
-
     echo "Home page created."
 fi
 
@@ -95,7 +92,6 @@ if [ -z "$BLOG_ID" ]; then
         --post_status=publish \
         --porcelain \
         --allow-root)
-
     echo "Posts page created."
 fi
 
@@ -136,9 +132,9 @@ if ! wp post list --post_type=post --name=third-post --field=ID --allow-root | g
         --post_status=publish \
         --post_author=1 \
         --allow-root
+    echo "Posts setup complete."
 fi
 
-echo "Landing page and posts setup complete."
 
 # --------------------------------------------
 # BONUS - Redis
@@ -158,9 +154,9 @@ wp config set WP_CACHE true --raw --allow-root
 
 if ! wp redis status --allow-root 2>/dev/null | grep -q "Status: Connected"; then
     wp redis enable --allow-root
+    echo "Redis enabled."
 fi
 
-echo "Redis enabled."
 
 # --------------------------------------------
 # Start PHP-FPM

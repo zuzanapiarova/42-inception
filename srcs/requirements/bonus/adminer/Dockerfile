@@ -20,4 +20,4 @@ RUN wget "http://www.adminer.org/latest.php" -O /var/www/html/adminer.php && \
     
 RUN sed -i "s/Listen 80/Listen 8080/g" /etc/apache2/ports.conf
 
-ENTRYPOINT ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
+CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]

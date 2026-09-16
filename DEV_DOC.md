@@ -4,7 +4,7 @@
 
 - Docker Engine
 - Docker Compose
-- A filled `srcs/.env` file based on `srcs/.env.template`
+- A filled `srcs/.env` file based on `srcs/.env.example`
 
 ## Set Up VM
 
@@ -12,8 +12,6 @@
 2. VM Name, folder /goinfre/zpiarova, no iso, type linux, versin debian 64bit, for other setup use defaults
 3. set port forwarding: settings --> network --> advanced --> port forwarding --> add rules --> 
 - Rule 1 - TCP - 127.0.0.1 - 4242 - (guest ip empty) - 22 - SSH
-- Rule 2 - TCP - 127.0.0.1 - 8443 - (guest ip empty) - 443 - 443 entry to nginx
-
 
 3. upon starting select the iso image - I used `debian-13.1.0-amd64-netinst.iso`
 4. Select Install for manual install
@@ -38,12 +36,9 @@
 19. for ssh edit /etc/ssh/sshd_config and uncomment Port  22 (XXX no change from 22 to 4242)
 20. Restart sshd `sudo service ssh restart`
 
-21. Set up vscode for ssh: extension `Remote - SSH: Editing Configuration Files`, then in bottom left corner cick icon `>< (Open a Remote Window)`
-22. If there is no `Connect Current Window to Host` in commmand prompt select SSH, add new, and select the config file in /home/.. 
-22. Then select `Connect Current Window to Host`
-23. You can see that it's successfully connected when you see the pop up on the bottom right corner of the screen - Host Added! Source: Remote - SSH (Extension) [Open Config] [Connect]
+21. SSH into the VM from the host termminal so you can run copy-paste commands: `ssh -p 4242 zpiarova@localhost` (need to set up port forwarding for host ip 127.0.0.1 port 4242 to vm port 22)
 
-24. Install all dependencies:
+22. Install all dependencies:
 a. tools
 `sudo apt-get install git wget zsh vim make openbox xinit kitty firefox-esr filezilla -y`
 b. docker installation
@@ -73,41 +68,23 @@ sudo apt install task-gnome-desktop firefox-esr
 
 sudo reboot
 ```
-<!-- c. to access webtites  -->
-`startx`
 
-25. Clone the folder in the VM. If making any changes, dont forget to git push!!!!
+23. Clone the folder in the VM. If making any changes, dont forget to git push!!!! BUT to push from within the VM via https you NEED TO input a PAT instead of the password to authenticate to git:
+- run `git pull`
+- on github.com --> Settings --> developer settings --> Fine-grained --> restrict it to only the repository
+- when prompted add your github username (not email) and paste the PAT instead of the password
+
+24. Set up vscode for ssh: 
+25. Add VS Code extension `Remote - SSH: Editing Configuration Files`, then in bottom left corner cick icon `>< (Open a Remote Window)`
+26. If there is no `Connect Current Window to Host` in commmand prompt select SSH, add new, and select the config file in /home/.. 
+27. Then select `Connect Current Window to Host` and select folder of the VMs cloned repository
+28. You can see that it's successfully connected when you see the pop up on the bottom right corner of the screen - Host Added! Source: Remote - SSH (Extension) [Open Config] [Connect]
  
 ## Environment Setup
 
-1. Copy `srcs/.env.template` to `srcs/.env`.
+1. Copy `srcs/.env.example` to `srcs/.env`.
 2. Fill in the database, WordPress, FTP, Redis, and runner variables.
 3. Make sure the host name in `srcs/.env` points to `127.0.0.1` in `/etc/hosts`.
-
-Example .env:
-```
-DOMAIN_NAME=zpiarova.42.fr
-DB_NAME=wordpress
-DATA_DIR=/home/zpiarova/data
-SSL_DIR = ./srcs/.keys/ssl
-
-DB_USER=user
-DB_PASSWORD=password
-MYSQL_ROOT_PASSWORD=password
-
-WORDPRESS_USER=wpuser
-WORDPRESS_USER_EMAIL=user@gmail.com
-WORDPRESS_USER_PASSWORD=wpuserpass
-
-WORDPRESS_ADMIN_USER=wpzuzka
-WORDPRESS_ADMIN_EMAIL=wp@gmail.com
-WORDPRESS_ADMIN_PASSWORD=wpzuzkapass
-
-REDIS_PASSWORD=redispass
-
-FTP_USER=ftpuser
-FTP_PASSWORD=ftppass
-```
 
 ## Build and Launch
 

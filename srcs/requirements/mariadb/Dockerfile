@@ -20,5 +20,4 @@ COPY ./tools/01-db-init.sh /
 RUN chmod +x /01-db-init.sh
 
 # run init script with readiness check that waits until db is initialized so wordpress container wont start until DB is
-ENTRYPOINT ["/01-db-init.sh"]
-CMD ["mariadbd", "--console", "--user=mysql"]
+CMD ["/01-db-init.sh", "mariadbd", "--console", "--user=mysql"]

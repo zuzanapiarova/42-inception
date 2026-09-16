@@ -12,9 +12,9 @@ COPY ./tools/vsftpd.conf /etc/vsftpd.conf
 # vsftpd needs the chroot directory to exist.
 RUN mkdir -p /var/run/vsftpd/empty && chmod 755 /var/run/vsftpd/empty
 
-COPY ./tools/ftp-init.sh /usr/local/bin/ftp-init.sh
-RUN chmod +x /usr/local/bin/ftp-init.sh
+COPY ./tools/01-ftp-init.sh /usr/local/bin/01-ftp-init.sh
+RUN chmod +x /usr/local/bin/01-ftp-init.sh
 
 EXPOSE 21 30000-30009
 
-ENTRYPOINT ["/usr/local/bin/ftp-init.sh"]
+CMD ["01-ftp-init.sh"]

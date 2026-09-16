@@ -1,10 +1,10 @@
 DOCKER_COMPOSE_FILE = ./srcs/docker-compose.yml
 ENV_FILE = ./srcs/.env
-ENV_TEMPLATE = ./srcs/.env.template
+ENV_EXAMPLE = ./srcs/.env.example
 
 -include $(ENV_FILE)
 
-SSL_DIR = ./srcs/.keys/ssl
+SSL_DIR = ${DATA_DIR}/.keys
 SSL_CERT = $(SSL_DIR)/fullchain.pem
 SSL_KEY = $(SSL_DIR)/privkey.pem
 
@@ -13,7 +13,7 @@ all: env hosts volumes certs up
 env:
 	@if [ ! -f "$(ENV_FILE)" ]; then \
 		echo "Error: $(ENV_FILE) is missing."; \
-		echo "Create it from $(ENV_TEMPLATE) and fill in the required values before running make."; \
+		echo "Create it from $(ENV_EXAMPLE) and fill in the required values before running make. DON'T USE WORD ADMIN IN ADMIN USERNAMES/PASSWORDS OR EVALUATION IS 0. THE WP ADMIN AND USER EMAILS MUST BE DIFFERENT."; \
 		exit 1; \
 	fi
 	@while IFS= read -r line || [ -n "$$line" ]; do \
@@ -32,11 +32,6 @@ hosts:
 volumes:
 	mkdir -p ${DATA_DIR}/wordpress-data
 	mkdir -p ${DATA_DIR}/wordpress-site
-
-# DEV off / PROD on
-# recursively make group 33 (www-data group on ubuntu servers used by nginx,php) / group 999 (mysql user group) owner
-# 	chown -R 33:33 ${DATA_DIR}/wordpress-data
-# 	chown -R 999:999 ${DATA_DIR}/wordpress-site
 
 certs:
 	@mkdir -p $(SSL_DIR)
@@ -65,11 +60,15 @@ clean:
 	docker compose -f $(DOCKER_COMPOSE_FILE) down -v
 
 fclean: clean
+	docker stop $(docker ps -qa)
+	docker rm $(docker ps -qa)
+	docker rmi $(docker images -qa)
+	docker volume rm $(docker volume ls -q)
 	rm -rf ${DATA_DIR}/wordpress-data
 	rm -rf ${DATA_DIR}/wordpress-site
-	rm -rf $(dir $(SSL_DIR))
+	rm -rf ${DATA_DIR}/.keys
 	docker system prune -a -f
 
 restart: clean up
 
-.PHONY: env hosts certs build re up down clean fclean restart all
+.PHONY: all env hosts volumes certs up re down clean fclean

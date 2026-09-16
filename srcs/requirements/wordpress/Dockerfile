@@ -39,5 +39,4 @@ RUN chmod +x /01-setup.sh
 
 EXPOSE 9000
 
-ENTRYPOINT ["/01-setup.sh"]
-CMD ["/usr/sbin/php-fpm8.2", "-F"]
+CMD ["/01-setup.sh", "/usr/sbin/php-fpm8.2", "-F"]

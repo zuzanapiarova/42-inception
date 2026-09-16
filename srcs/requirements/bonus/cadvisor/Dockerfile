@@ -26,7 +26,7 @@ RUN git clone --depth 1 --branch ${CADVISOR_VERSION} \
         https://github.com/google/cadvisor.git . && \
     make build
 
-#todo: explain why am i doing multistage build 
+# multistage build 
 FROM debian:bookworm
 
 RUN apt-get update && \
@@ -37,4 +37,4 @@ COPY --from=builder /build/_output/cadvisor /usr/local/bin/cadvisor
 
 EXPOSE 8081
 
-ENTRYPOINT ["/usr/local/bin/cadvisor"]
+CMD ["/usr/local/bin/cadvisor"]

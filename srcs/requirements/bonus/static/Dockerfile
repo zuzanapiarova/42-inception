@@ -11,6 +11,9 @@ RUN apt-get update && \
 # copy config file from host to where nginx exects it
 COPY ./conf/99-nginx.conf /etc/nginx/conf.d/99-nginx.conf
 
-EXPOSE 443
+# BONUS: static site - for eval uncomment port 80 mapping in compose and server block in nginx.conf
+COPY ./out /usr/share/nginx/html
+
+EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
