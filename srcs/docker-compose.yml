@@ -13,7 +13,7 @@ services:
     volumes:
       - wordpress-site:/var/www/html:ro # read-only
       - ${DATA_DIR}/.keys:/etc/ssl:ro # mount keys instead of copying so they are not baked into the image
-    restart: "on-failure"
+    restart: unless-stopped
 
   wordpress:
     build: "./requirements/wordpress"
@@ -29,7 +29,7 @@ services:
         condition: service_healthy
     volumes:
       - wordpress-site:/var/www/html
-    restart: "on-failure"
+    restart: unless-stopped
     environment:
       WORDPRESS_DB_HOST: mariadb:3306
       WORDPRESS_DB_NAME: ${DB_NAME}
@@ -55,7 +55,7 @@ services:
       - inception
     volumes:
       - wordpress-data:/var/lib/mysql
-    restart: "on-failure"
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
@@ -70,7 +70,7 @@ services:
   adminer:
     build: ./requirements/bonus/adminer
     image: adminer
-    restart: "on-failure"
+    restart: unless-stopped
     ports: 
       - "8080:8080"
     depends_on:
@@ -81,7 +81,7 @@ services:
   ftp:
     build: ./requirements/bonus/ftp
     image: ftp
-    restart: "on-failure"
+    restart: unless-stopped
     ports: 
       - "21:21"
       - "30000-30009:30000-30009"
@@ -100,7 +100,7 @@ services:
       - 6379:6379
     networks:
       - inception
-    restart: on-failure
+    restart: unless-stopped
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     healthcheck:
@@ -112,7 +112,7 @@ services:
   cadvisor:
     build: ./requirements/bonus/cadvisor
     image: cadvisor
-    restart: on-failure
+    restart: unless-stopped
     ports:
       - "8081:8081"
     networks:
@@ -130,7 +130,7 @@ services:
       - inception
     ports:
       - "81:80"
-    restart: "on-failure"
+    restart: unless-stopped
 
 # named volumes backed by a specific host directories
 volumes:
