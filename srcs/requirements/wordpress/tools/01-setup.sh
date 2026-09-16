@@ -1,87 +1,169 @@
-#! /bin/bash
+#!/bin/bash
 
 set -eu
 
-#  TODO: paths as /blabla resolve to index, must change to return 404
+# TODO: paths as /blabla resolve to index, must change to return 404
 
-# Debian’s PHP-FPM package normally runs its worker pool as www-data - must chown the mount dir
+# Debian's PHP-FPM package normally runs its worker pool as www-data.
+# The WordPress volume needs to be writable by PHP-FPM.
 chown -R www-data:www-data /var/www/html || true
 
 # --------------------------------------------
-# Config WP via config file and connect to DB
+# Configure WordPress via wp-config.php
 # --------------------------------------------
+
 if [ ! -f /var/www/html/wp-config.php ]; then
-wp config create \
-    --dbname="$WORDPRESS_DB_NAME" \
-    --dbuser="$WORDPRESS_DB_USER" \
-    --dbpass="$WORDPRESS_DB_PASSWORD" \
-    --dbhost="$WORDPRESS_DB_HOST" \
-    --allow-root \
-    --skip-check
+    wp config create \
+        --dbname="$WORDPRESS_DB_NAME" \
+        --dbuser="$WORDPRESS_DB_USER" \
+        --dbpass="$WORDPRESS_DB_PASSWORD" \
+        --dbhost="$WORDPRESS_DB_HOST" \
+        --allow-root \
+        --skip-check
 fi
 
-# ---------------------------
-# WP install and create
-# ---------------------------
+# --------------------------------------------
+# Install WordPress if it is not installed
+# --------------------------------------------
 
 if ! wp core is-installed --allow-root; then
-    # installs WordPress core: sets site URL(--url), site title (--title), creates admin account (--admin_user, --admin_password, --admin_email)
     wp core install \
         --url="$DOMAIN_NAME" \
         --title="INCEPTION" \
         --admin_user="$WORDPRESS_ADMIN_USER" \
         --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
         --admin_email="$WORDPRESS_ADMIN_EMAIL" \
-        --allow-root    
+        --allow-root
 
-    # create additional WordPress user
+    echo "WordPress core installed."
+fi
+
+# --------------------------------------------
+# Create additional WordPress user if missing
+# --------------------------------------------
+
+if ! wp user get "$WORDPRESS_USER" --field=ID --allow-root >/dev/null 2>&1; then
     wp user create "$WORDPRESS_USER" "$WORDPRESS_USER_EMAIL" \
         --role=author \
         --user_pass="$WORDPRESS_USER_PASSWORD" \
         --allow-root
 
-    # create home page
+    echo "WordPress user created."
+fi
+
+# --------------------------------------------
+# Create Home page if missing
+# --------------------------------------------
+
+HOME_ID=$(wp post list \
+    --post_type=page \
+    --name=home \
+    --field=ID \
+    --allow-root)
+
+if [ -z "$HOME_ID" ]; then
     HOME_ID=$(wp post create \
         --post_type=page \
+        --post_name=home \
         --post_title="<h4 style='color: #AA336A;'>Home</h4>" \
-        --post_content="<h1 style='color:#FFB6C1;'>Welcome to Inception project by zpiarova - now with github actions </h1>" \
+        --post_content="<h1 style='color:#FFB6C1;'>Welcome to Inception project by zpiarova - now with github actions</h1>" \
         --post_status=publish \
-        --porcelain --allow-root) || true
+        --porcelain \
+        --allow-root)
 
-    wp option update show_on_front 'page' --allow-root || true
-    wp option update page_on_front $HOME_ID --allow-root || true
+    echo "Home page created."
+fi
 
-    # ---------------------------
-    # Create 3 blog posts
-    # ---------------------------
+wp option update show_on_front page --allow-root
+wp option update page_on_front "$HOME_ID" --allow-root
+
+# --------------------------------------------
+# Create Posts page if missing
+# --------------------------------------------
+
+BLOG_ID=$(wp post list \
+    --post_type=page \
+    --name=posts \
+    --field=ID \
+    --allow-root)
+
+if [ -z "$BLOG_ID" ]; then
     BLOG_ID=$(wp post create \
         --post_type=page \
+        --post_name=posts \
         --post_title="<h4 style='color: #AA336A;'>Posts</h4>" \
         --post_status=publish \
-        --porcelain --allow-root) || true
+        --porcelain \
+        --allow-root)
 
-    wp option update page_for_posts $BLOG_ID --allow-root
-
-    wp post create --post_title="<h4 style='color: #AA336A;'>First Post</h4>" --post_content="<p style='color:#FFB6C1;'> This is the first blog post.</p>" --post_status=publish --post_author=1 --allow-root || true
-    wp post create --post_title="<h4 style='color: #AA336A;'>Second Post</h4>" --post_content="<p style='color:#FFB6C1;'>This is the second blog post.</p>" --post_status=publish --post_author=1 --allow-root || true
-    wp post create --post_title="<h4 style='color: #AA336A;'>Third Post</h4>" --post_content="<p style='color:#FFB6C1;'>This is the third blog post.</p>" --post_status=publish --post_author=1 --allow-root || true
-
-    echo "landing page setup complete"
-
-    # ----------------------------
-    # BONUS - REDIS
-    # ----------------------------
-
-    # install redis plugin and set redis connection constants in wp-config.php
-    wp plugin install redis-cache --activate --allow-root
-    wp config set WP_REDIS_HOST "$WP_REDIS_HOST" --allow-root
-    wp config set WP_REDIS_PORT "$WP_REDIS_PORT" --allow-root
-    wp config set WP_REDIS_PASSWORD "$WP_REDIS_PASSWORD" --allow-root
-    wp config set WP_REDIS_DATABASE 0 --allow-root
-    wp redis enable --allow-root
-    wp config set WP_CACHE 'true' --allow-root
-    echo "redis enabled"
-
+    echo "Posts page created."
 fi
+
+wp option update page_for_posts "$BLOG_ID" --allow-root
+
+# --------------------------------------------
+# Create blog posts if missing
+# --------------------------------------------
+
+if ! wp post list --post_type=post --name=first-post --field=ID --allow-root | grep -q .; then
+    wp post create \
+        --post_type=post \
+        --post_name=first-post \
+        --post_title="<h4 style='color: #AA336A;'>First Post</h4>" \
+        --post_content="<p style='color:#FFB6C1;'>This is the first blog post.</p>" \
+        --post_status=publish \
+        --post_author=1 \
+        --allow-root
+fi
+
+if ! wp post list --post_type=post --name=second-post --field=ID --allow-root | grep -q .; then
+    wp post create \
+        --post_type=post \
+        --post_name=second-post \
+        --post_title="<h4 style='color: #AA336A;'>Second Post</h4>" \
+        --post_content="<p style='color:#FFB6C1;'>This is the second blog post.</p>" \
+        --post_status=publish \
+        --post_author=1 \
+        --allow-root
+fi
+
+if ! wp post list --post_type=post --name=third-post --field=ID --allow-root | grep -q .; then
+    wp post create \
+        --post_type=post \
+        --post_name=third-post \
+        --post_title="<h4 style='color: #AA3366;'>Third Post</h4>" \
+        --post_content="<p style='color:#FFB6C1;'>This is the third blog post.</p>" \
+        --post_status=publish \
+        --post_author=1 \
+        --allow-root
+fi
+
+echo "Landing page and posts setup complete."
+
+# --------------------------------------------
+# BONUS - Redis
+# --------------------------------------------
+
+if ! wp plugin is-installed redis-cache --allow-root; then
+    wp plugin install redis-cache --activate --allow-root
+fi
+
+wp plugin activate redis-cache --allow-root
+
+wp config set WP_REDIS_HOST "$WP_REDIS_HOST" --allow-root
+wp config set WP_REDIS_PORT "$WP_REDIS_PORT" --allow-root
+wp config set WP_REDIS_PASSWORD "$WP_REDIS_PASSWORD" --allow-root
+wp config set WP_REDIS_DATABASE 0 --allow-root
+wp config set WP_CACHE true --raw --allow-root
+
+if ! wp redis status --allow-root 2>/dev/null | grep -q "Status: Connected"; then
+    wp redis enable --allow-root
+fi
+
+echo "Redis enabled."
+
+# --------------------------------------------
+# Start PHP-FPM
+# --------------------------------------------
 
 exec "$@"
