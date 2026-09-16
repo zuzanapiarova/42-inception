@@ -4,7 +4,7 @@ ENV_EXAMPLE = ./srcs/.env.example
 
 -include $(ENV_FILE)
 
-SSL_DIR = ${DATA_DIR}/.keys
+SSL_DIR = ${DATA_DIR}/.keys #hardcoded in docker-compose nginx service and 
 SSL_CERT = $(SSL_DIR)/fullchain.pem
 SSL_KEY = $(SSL_DIR)/privkey.pem
 

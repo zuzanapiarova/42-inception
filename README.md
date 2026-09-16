@@ -220,6 +220,7 @@ The evaluated learner has to explain to you in simple terms:
 - The benefit of Docker compared to VMs
 - The pertinence of the directory structure required for this project (an example is provided in the subject's PDF file)
 - A simple explanation of docker-network
+- The evaluated learner must be able to explain you how to login into the database
 
 ◦ Virtual Machines vs Docker
 ◦ Secrets vs Environment Variables 

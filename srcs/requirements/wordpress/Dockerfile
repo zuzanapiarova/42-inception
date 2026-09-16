@@ -32,8 +32,6 @@ WORKDIR /var/www/html
 # download WordPress core files into /var/www/html
 RUN wp core download --allow-root
 
-# USER TODO - should i add user here ? 
-
 COPY ./tools/01-setup.sh /
 RUN chmod +x /01-setup.sh
 
