@@ -4,7 +4,7 @@ ENV_EXAMPLE = ./srcs/.env.example
 
 -include $(ENV_FILE)
 
-SSL_DIR = ${DATA_DIR}/.keys #hardcoded in docker-compose nginx service and 
+SSL_DIR = ${DATA_DIR}/.keys #hardcoded in docker-compose nginx service and make fclean
 SSL_CERT = $(SSL_DIR)/fullchain.pem
 SSL_KEY = $(SSL_DIR)/privkey.pem
 
@@ -60,10 +60,10 @@ clean:
 	docker compose -f $(DOCKER_COMPOSE_FILE) down -v
 
 fclean: clean
-	docker stop $(docker ps -qa)
-	docker rm $(docker ps -qa)
-	docker rmi $(docker images -qa)
-	docker volume rm $(docker volume ls -q)
+fclean: clean
+	docker rm -f $$(docker ps -qa) 2>/dev/null || true
+	docker rmi -f $$(docker images -qa) 2>/dev/null || true
+	docker volume rm $$(docker volume ls -q) 2>/dev/null || true
 	rm -rf ${DATA_DIR}/wordpress-data
 	rm -rf ${DATA_DIR}/wordpress-site
 	rm -rf ${DATA_DIR}/.keys
