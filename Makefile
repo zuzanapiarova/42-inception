@@ -4,7 +4,8 @@ ENV_EXAMPLE = ./srcs/.env.example
 
 -include $(ENV_FILE)
 
-SSL_DIR = ${DATA_DIR}/.keys #hardcoded in docker-compose nginx service and make fclean
+# .keys are hardcoded here, in docker-compose nginx service and make fclean - always relative to data dir env
+SSL_DIR = ${DATA_DIR}/.keys
 SSL_CERT = $(SSL_DIR)/fullchain.pem
 SSL_KEY = $(SSL_DIR)/privkey.pem
 
@@ -44,7 +45,7 @@ certs:
 	fi
 
 # start
-up: volumes
+up: env hosts certs volumes
 	docker compose -f $(DOCKER_COMPOSE_FILE) up -d --build
 
 # rebuild
