@@ -134,6 +134,7 @@ Verify its working:
 Redis is an in-memory data store that I use in the project as a cache for WordPress. Instead of WordPress repeatedly querying MariaDB for the same data, frequently accessed data can be stored temporarily in Redis, which is much faster to access. This can reduce the number of database queries and improve the application's performance.
 
 Verify its working:
+0. You can simply go to https://zpiarova.42.fr/wp-admin and there, if set up correctly, should be a redis tab  under settings - just check Connected, Client: PhpRedis, Drop-in: Valid. If not, check the logs of the wordpress container for errors.
 1. Redis is alive: `docker exec srcs-redis-1 redis-cli -a <password> ping`: should return `PONG`
 2. Wp can communicate with redis: `docker exec srcs-wordpress-1 wp redis status --allow-root`: should return `Status: Connected, Client: PhpRedis, Drop-in: Valid`
 3. Redis actually caches data: `docker exec srcs-redis-1 redis-cli -a <password> DBSIZE` (run after visiting WordPress site a few times): should return non zero value
