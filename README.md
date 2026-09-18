@@ -117,7 +117,7 @@ Verify it's working:
 
 ### STATIC WEBSITE (BONUS)
 
-A simple html+css+js website for playing tetris. 
+A simple html+css+js website for playing tetris.
 
 Verify its working:
 1. `http://${DOMAIN_NAME}:81` - static website
@@ -139,11 +139,22 @@ Verify its working:
 3. Redis actually caches data: `docker exec srcs-redis-1 redis-cli -a <password> DBSIZE` (run after visiting WordPress site a few times): should return non zero value
 4. redis cli: `docker exec -it redis redis-cli` then run AUTH <password> and then DBSIZE to check the number of keys in the cache. You can also use KEYS * to list all keys (each line is a whole string which is the Redis key)and GET <key> to retrieve a specific value.
 
-### FTP (BONUS)
+### FTP (BONUS)cd 4 
 
 FTP mounts the /home/zpiarova/data/wordpress-site to /var/www/html so it can access the same filesystem as wordpress and nginx.
 
-Verify it works by:
+Verify its working:
+1. check ftp container is pointing to the volume of WordPress website: `docker volume inspect
+2. create a file: `echo "Hello, FTP server!" >> hello_ftp.txt`
+3. open filezilla, and connect it to the ftp container - enter the vm ip, port 21, FTP_USER and FTP_PASSWORD from .env, then quickconnect
+4. Upload the file to the root of the ftp server - drag it from right side ot the root folder on the righ side
+5. Check it is in the ftp container adn nginx container:
+- `docker exec -it srcs-ftp-1 ls -la /var/www/html/hello_ftp.txt`
+- `docker exec -it srcs-nginx-1 ls -la /var/www/html/hello_ftp.txt`
+6. Change the file permissions so nginx can read it (from the ftp user because ftp user created the file in the volume): `docker exec -it srcs-ftp-1 chmod a+r /var/www/html/hello_ftp.txt`
+7. Check the file is accessible at `https://zpiarova.42.fr/hello_ftp.txt`
+
+<!-- Verify it works by (on my mac during dev):
 0. check ftp container is pointing to the volume of WordPress website: `docker volume inspect srcs_wordpress-site`
 1. start the container: `docker exec -it ftp bash`
 2. create a file: `echo "Hello, FTP server!" >> hello_ftp.txt`
@@ -156,7 +167,7 @@ FTP in this project is a shared file-transfer service mounted on the same WordPr
 
 Testing FTP from the machine in active mode often fails because the FTP server has to connect back to the client for the data channel, and that callback path is usually blocked or broken by Docker, Colima, or local NAT on macOS.
 
-Testing from inside the FTP container is acceptable because the client and server communicate inside the Docker network, so the data connection stays within the container environment and avoids the host-side networking problem.
+Testing from inside the FTP container is acceptable because the client and server communicate inside the Docker network, so the data connection stays within the container environment and avoids the host-side networking problem. -->
 
 ### CADVISOR (BONUS)
 
@@ -177,9 +188,9 @@ cAdvisor has an unusual job: it is a container that needs to observe the host an
 
 *cAdvisor is historically integrated directly into the Kubernetes kubelet, before CRI (container runtime integration). Kubernetes documentation says the kubelet collects pod/container metrics via cAdvisor, and the kubelet exposes them through endpoints such as /metrics/cadvisor.*
 
-Verify that it works:
-1. Access the exposed endpoint: `curl http://localhost:8081/metrics`
-2. Output is a large text containing Prometheus-formatted metrics as
+Verify that it works:`
+0. check the website `http://zpiarova.42.fr:8081/containers/` - should display cadvisor logo and metrics in a nice UI
+1. Access the exposed endpoint: `curl http://localhost:8081/metrics` - should return a large text containing Prometheus-formatted metrics as
 ```
 # HELP container_cpu_usage_seconds_total Cumulative cpu time consumed
 # TYPE container_cpu_usage_seconds_total counter

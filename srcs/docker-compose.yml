@@ -2,7 +2,7 @@
 services:
   nginx:
     build: "./requirements/nginx"
-    image: nginx
+    image: nginx:inception
     networks:
       - inception
     depends_on:
@@ -16,7 +16,7 @@ services:
 
   wordpress:
     build: "./requirements/wordpress"
-    image: wordpress
+    image: wordpress:inception
     expose:
       - "9000"
     networks:
@@ -47,7 +47,7 @@ services:
 
   mariadb: 
     build: "./requirements/mariadb"
-    image: mariadb
+    image: mariadb:inception
     expose:
       - "3306"
     networks:
@@ -68,7 +68,7 @@ services:
   # bonus:
   adminer:
     build: ./requirements/bonus/adminer
-    image: adminer
+    image: adminer:inception
     restart: unless-stopped
     ports: 
       - "8080:8080"
@@ -79,7 +79,7 @@ services:
 
   ftp:
     build: ./requirements/bonus/ftp
-    image: ftp
+    image: ftp:inception
     restart: unless-stopped
     ports: 
       - "21:21"
@@ -94,7 +94,7 @@ services:
 
   redis:
     build: ./requirements/bonus/redis
-    image: redis
+    image: redis:inception
     ports:
       - 6379:6379
     networks:
@@ -110,7 +110,7 @@ services:
 
   cadvisor:
     build: ./requirements/bonus/cadvisor
-    image: cadvisor
+    image: cadvisor:inception
     restart: unless-stopped
     ports:
       - "8081:8080"
@@ -124,7 +124,7 @@ services:
 
   static:
     build: "./requirements/bonus/static"
-    image: static
+    image: static:inception
     networks:
       - inception
     ports:
