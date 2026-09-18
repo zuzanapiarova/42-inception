@@ -57,9 +57,7 @@ flowchart TB
 
 ### NGINX
 
-`nginx.conf` configures two Nginx server blocks:
-- First server block serves the wordpress application on port 443.
-- Second server block serves the static website on port 80. It is a placeholder tetris game.
+`nginx.conf` configures Nginx server block that serves the wordpress application on port 443.
 
 Domain name points to a local address.
 Browser reads hosts and turns the domain into 127.0.0.1.
@@ -74,10 +72,10 @@ It forwards php requests for html pages to wordpress container and serves static
 
 **For static file requests** (GET *.jpg, *.css, *.javascript, fonts, ...), it serves them from /var/www/html which is also mounted to the wordpress container and on the host volume /home/zpiarova/data/wordpress-site. No php is involved.
 
-Generate the SSL certificates and private keys on the host andmount them rather than generating or copying them during the image build. This keeps the private key out of the Docker image, so anyone with access to the image cannot simply extract it, and also makes certificate rotation easier: when the certificate expires, I can replace the files on the host without rebuilding the Docker image.
+Generate the SSL certificates and private keys on the host and mount them rather than generating or copying them during the image build. This keeps the private key out of the Docker image, so anyone with access to the image cannot simply extract it, and also makes certificate rotation easier: when the certificate expires, I can replace the files on the host without rebuilding the Docker image.
 
 Verify its working:
-1. `https://${DOMAIN_NAME}:8443` - wordpress website - 8443 because on host 443 is not available
+1. `https://${DOMAIN_NAME}:443` - wordpress website - http should NOT work, only https
 2. `curl -vk https://localhost:443` - on the vm check the correct port is serving
 
 ### WORDPRESS
@@ -111,7 +109,11 @@ Mariadbd then runs on the container and waits for db requests from the wordpress
 
 Verify it's working:
 1. Check the site works and gets data from the db
-2. Check adminer (bonus) for the data
+2. Connect to the MariaDB from inside its container using the database user, password, and database name defined in the project configuration.
+- `docker exec -it mariadb mariadb -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"`
+- or `docker exec -it mariadb bash` and then connect with `mariadb -u<user> -p<password> <database>` (-p mmust be connected to the following password without any space !)
+3. then you can perform some operations like ` SHOW TABLES;`
+4. Check adminer if set up (bonus) for the data, uses, posts, cnew comments...
 
 ### STATIC WEBSITE (BONUS)
 
@@ -125,16 +127,17 @@ Verify its working:
 Container runs a database client with web UI view to provide admin view of the database.
 
 Verify its working:
-1. Open `https://${DOMAIN_NAME}:8080` - use db credentials from .env (for server use container name from docker network - 'mariadb')
+1. Open `http://${DOMAIN_NAME}:8080` - use db credentials from .env (for server use container name from docker network - 'mariadb')
 
 ### REDIS (BONUS)
 
-TODO: description
+Redis is an in-memory data store that I use in the project as a cache for WordPress. Instead of WordPress repeatedly querying MariaDB for the same data, frequently accessed data can be stored temporarily in Redis, which is much faster to access. This can reduce the number of database queries and improve the application's performance.
 
 Verify its working:
 1. Redis is alive: `docker exec srcs-redis-1 redis-cli -a <password> ping`: should return `PONG`
-2. Wp can communicate with redis: `docker exec srcs-wordpress-1 wp redis status --allow-root`: should return Status: Connected, Client: PhpRedis, Drop-in: Valid
+2. Wp can communicate with redis: `docker exec srcs-wordpress-1 wp redis status --allow-root`: should return `Status: Connected, Client: PhpRedis, Drop-in: Valid`
 3. Redis actually caches data: `docker exec srcs-redis-1 redis-cli -a <password> DBSIZE` (run after visiting WordPress site a few times): should return non zero value
+4. redis cli: `docker exec -it redis redis-cli` then run AUTH <password> and then DBSIZE to check the number of keys in the cache. You can also use KEYS * to list all keys (each line is a whole string which is the Redis key)and GET <key> to retrieve a specific value.
 
 ### FTP (BONUS)
 
@@ -239,5 +242,6 @@ The evaluated learner has to explain to you in simple terms:
 
 5. Explain you how to login into the database:
 - Connect to the MariaDB from inside its container using the database user, password, and database name defined in the project configuration.
-- `docker exec -it mariadb mariadb -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"`
-- or `docker exec -it mariadb bash` and then connect with `mariadb -u<user> -p<password> <database>`
+- `docker exec -it srcs-mariadb-1 mariadb -u "$MYSQL_USER" -p "$MYSQL_PASSWORD" "$MYSQL_DATABASE"`
+- or `docker exec -it srcs-mariadb-1 bash` and then connect with `mariadb -u <user> -p <password> <database>`
+- then you can perform some operations like ` SHOW TABLES;`

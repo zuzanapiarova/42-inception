@@ -9,7 +9,6 @@ services:
       - wordpress
     ports:
       - "443:443"
-      # - "81:80"
     volumes:
       - wordpress-site:/var/www/html:ro # read-only
       - ${DATA_DIR}/.keys:/etc/ssl:ro # mount keys instead of copying so they are not baked into the image
@@ -114,7 +113,7 @@ services:
     image: cadvisor
     restart: unless-stopped
     ports:
-      - "8081:8081"
+      - "8081:8080"
     networks:
       - inception
     volumes:
