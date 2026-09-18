@@ -17,13 +17,6 @@ env:
 		echo "Create it from $(ENV_EXAMPLE) and fill in the required values before running make. DON'T USE WORD ADMIN IN ADMIN USERNAMES/PASSWORDS OR EVALUATION IS 0. THE WP ADMIN AND USER EMAILS MUST BE DIFFERENT."; \
 		exit 1; \
 	fi
-	@while IFS= read -r line || [ -n "$$line" ]; do \
-		case "$$line" in \
-			''|'#'*) ;; \
-			*=*) ;; \
-			*) echo "Error: invalid env line in $(ENV_FILE): $$line"; echo "Use KEY=value format."; exit 1;; \
-		esac; \
-	done < "$(ENV_FILE)"
 
 hosts:
 	@grep -qF "zpiarova.42.fr" /etc/hosts || \
@@ -61,9 +54,6 @@ clean:
 	docker compose -f $(DOCKER_COMPOSE_FILE) down -v
 
 fclean: clean
-# 	docker rm -f $$(docker ps -qa) 2>/dev/null || true
-# 	docker rmi -f $$(docker images -qa) 2>/dev/null || true
-# 	docker volume rm $$(docker volume ls -q) 2>/dev/null || true
 	sudo rm -rf ${DATA_DIR}/wordpress-data
 	sudo rm -rf ${DATA_DIR}/wordpress-site
 	rm -rf ${DATA_DIR}/.keys
