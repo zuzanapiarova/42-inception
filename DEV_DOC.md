@@ -79,7 +79,9 @@ sudo reboot
 26. If there is no `Connect Current Window to Host` in commmand prompt select SSH, add new, and select the config file in /home/.. 
 27. Then select `Connect Current Window to Host` and select folder of the VMs cloned repository
 28. You can see that it's successfully connected when you see the pop up on the bottom right corner of the screen - Host Added! Source: Remote - SSH (Extension) [Open Config] [Connect]
- 
+
+29. Add the ssh key of the vm to the intra so the VM is authorized to access vogsphere git: `ssh-keygen -t ed25519 -C "vm-github"`, display public key: `cat ~/.ssh/id_ed25519.pub` and add to intra
+
 ## Environment Setup
 
 1. Copy `srcs/.env.example` to `srcs/.env`.
