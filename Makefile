@@ -64,7 +64,7 @@ fclean: clean
 	docker rm -f $$(docker ps -qa) 2>/dev/null || true
 	docker rmi -f $$(docker images -qa) 2>/dev/null || true
 	rm -rf ${DATA_DIR}/.keys
-	rmdir -rf ${DATA_DIR}
+	rmdir ${DATA_DIR}
 	docker system prune -a -f
 
 restart: clean up
