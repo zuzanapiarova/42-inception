@@ -60,10 +60,8 @@ ls -la /home/zpiarova/data
 docker ps -qa
 docker images -qa
 docker volume ls -q
+docker network ls -q
 ```
-Before starting the evaluation, run this command in the terminal: 
-`docker stop $(docker ps -qa); docker rm $(docker ps -qa); docker rmi -f $(docker images -qa); docker volume rm $(docker volume ls -q); docker network rm $(docker network ls -q) 2>/dev/null`
-
 If not, stop and remove all:
 ```
 docker stop $(docker ps -qa) # stop all running containers
@@ -72,6 +70,9 @@ docker rmi $(docker images -qa) # remove all images
 docker volume rm $(docker volume ls -q) # remove all volumes
 docker network rm $(docker network ls -q) # remove all networks
 ```
+Before starting the evaluation, you can run this command in the terminal: 
+`docker stop $(docker ps -qa); docker rm $(docker ps -qa); docker rmi -f $(docker images -qa); docker volume rm $(docker volume ls -q); docker network rm $(docker network ls -q) 2>/dev/null`
+
 2. Check port forwarding is only for 22(SSH) and 443 (nginx entrypoint) in the VM settings.
 3. Clone the repo and cd into it
 4. make - will fail if .env is not set up - set up envs based on the env.example

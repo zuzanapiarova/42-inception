@@ -117,7 +117,7 @@ Verify it's working:
 
 ### STATIC WEBSITE (BONUS)
 
-A simple html+css+js website for playing tetris.
+A simple html+css+js website for playing tetris served by nginx.
 
 Verify its working:
 1. `http://${DOMAIN_NAME}:81` - static website
@@ -139,7 +139,7 @@ Verify its working:
 3. Redis actually caches data: `docker exec srcs-redis-1 redis-cli -a <password> DBSIZE` (run after visiting WordPress site a few times): should return non zero value
 4. redis cli: `docker exec -it redis redis-cli` then run AUTH <password> and then DBSIZE to check the number of keys in the cache. You can also use KEYS * to list all keys (each line is a whole string which is the Redis key)and GET <key> to retrieve a specific value.
 
-### FTP (BONUS)cd 4 
+### FTP (BONUS)
 
 FTP mounts the /home/zpiarova/data/wordpress-site to /var/www/html so it can access the same filesystem as wordpress and nginx.
 
