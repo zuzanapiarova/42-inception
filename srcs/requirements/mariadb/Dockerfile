@@ -14,7 +14,7 @@ RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld || true
 COPY ./tools/99-docker.cnf /etc/mysql/mariadb.conf.d/99-docker.cnf
 # RUN sed -i 's/^bind-address.*/bind-address = 0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf
 
-EXPOSE 3307
+EXPOSE 3306
 
 COPY ./tools/01-db-init.sh /
 RUN chmod +x /01-db-init.sh

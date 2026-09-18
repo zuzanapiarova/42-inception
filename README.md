@@ -27,19 +27,19 @@ The mandatory part requires 3 containers that communicate over docker network. B
 flowchart TB
     subgraph Containers["Containers"]
         direction LR
-        Nginx["nginx\n:80, :443"]
+        Nginx["nginx\n:443"]
         WP["wordpress\n:9000"]
         DB["mariadb\n:3306"]
         Adminer["adminer\n:8080"]
         FTP["ftp\n:21, :30000-30009"]
         Redis["redis\n:6379"]
-        Static["static website\n:81"]
+        Static["static website\n:80"]
         Cadvisor["cadvisor\n:8081"]
     end
 
-    subgraph Mounts["Mounted volumes / host sources"]
+    subgraph Mounts["Mounted volumes from /home/zpiarova/data / host sources"]
         direction LR
-        SSL["SSL keys\n./.keys/ssl -> /etc/ssl"]
+        SSL[".keys/ssl -> /etc/ssl"]
         SiteVol[("wordpress-site\n/var/www/html")]
         DBVol[("wordpress-data\n/var/lib/mysql")]
         CadvisorSources["host metrics\n/ + /var/run + /sys + /var/lib/docker + /cgroup"]
@@ -199,30 +199,45 @@ Docker Engine and Docker Compose are required on the machine.
 
 **Start:**
 1. Create an `.env` in `./srcs/` and populate it with values according to the `./srcs/.env.example`.
-2. Makefile cannot read .env. Make sure the environment variables on top of Makefile match the respective ones in env.
-3. Edit `/etc/hosts` to include `127.0.0.1       zpiarova.42.fr (the DOMAIN_NAME from env)`
-2. Run `make` from the root of this repository.
-3. To stop containers but persist volumes, run `make clean`.
-4. When finished, run `make fclean` to stop and remove containers and clear volumes.
+2. Makefile edits `/etc/hosts` to include `127.0.0.1       zpiarova.42.fr (the DOMAIN_NAME from env)`
+3. Run `make` from the root of this repository.
+4. To stop containers but persist volumes, run `make clean`.
+5. When finished, run `make fclean` to stop and remove containers and clear volumes.
 
 ## Resources
 
 - Docker and compose documentations were used for learning.
-- VM Setup guide from https://github.com/Bakr-1/inceptionVm-guide.
+- VM Setup was guided and helped by the resources from https://github.com/Bakr-1/inceptionVm-guide.
 - AI was used to answer questions that came up about the topic to deepen my knowledge and find which dependencies do the executed programs in each container need and to explore configuration files options for executables that consume them.
 
 ## Project Description
 
 The evaluated learner has to explain to you in simple terms:
 
-- How Docker and docker compose work
-- The difference between a Docker image used with docker compose and without docker compose
-- The benefit of Docker compared to VMs
-- The pertinence of the directory structure required for this project (an example is provided in the subject's PDF file)
-- A simple explanation of docker-network
-- The evaluated learner must be able to explain you how to login into the database
+1. How Docker and docker compose work:
+- Docker allows us to run applications inside isolated containers.
+- A Dockerfile defines how to build an image
+- An image contains everything needed to run an application.
+- A container is a running instance of that image. 
+- Docker Compose is used when we have multiple containers that need to work together: we define the services, networks, volumes, ports, and dependencies - Compose creates and manages the entire cotainer network
+- Without compose we would have to manually start each container and configure networking.
 
-◦ Virtual Machines vs Docker
-◦ Secrets vs Environment Variables 
-◦ Docker Network vs Host Network 
-◦ Docker Volumes vs Bind Mounts
+2. The benefit of Docker compared to VMs:
+- VMs each need to run a complete guest operating system.
+- Docker containers share the host machine's kernel, so they are much lighter than virtual machines.
+- Containers therefore start faster, use fewer resources, and make it easy to package an application together with its dependencies.
+- VMs provide stronger OS-level isolation, but for many application workloads Docker is more lightweight and convenient.
+
+3. The pertinence of the directory structure required for this project (an example is provided in the subject's PDF file)
+- Each service has its own directory containing the files needed to build it, such as its Dockerfile and configuration, while the Compose file is placed in the expected location to orchestrate the whole application. 
+- It also keeps configuration, source files, secrets, and persistent data clearly separated and makes it easier for another person to understand and rebuild the project.
+
+4. A simple explanation of docker-network:
+- Docker network allows containers to communicate with each other using their container/service names instead of IP addresses.
+- Eg. WordPress can connect to MariaDB using the hostname mariadb and the appropriate database port. 
+- Docker provides the internal networking and DNS resolution, so we don't need to hard-code the containers' changing IP addresses.
+
+5. Explain you how to login into the database:
+- Connect to the MariaDB from inside its container using the database user, password, and database name defined in the project configuration.
+- `docker exec -it mariadb mariadb -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"`
+- or `docker exec -it mariadb bash` and then connect with `mariadb -u<user> -p<password> <database>`
