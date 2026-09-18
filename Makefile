@@ -61,10 +61,12 @@ clean:
 	docker compose -f $(DOCKER_COMPOSE_FILE) down -v
 
 fclean: clean
-	docker rm -f $$(docker ps -qa) 2>/dev/null || true
-	docker rmi -f $$(docker images -qa) 2>/dev/null || true
+# 	docker rm -f $$(docker ps -qa) 2>/dev/null || true
+# 	docker rmi -f $$(docker images -qa) 2>/dev/null || true
+# 	docker volume rm $$(docker volume ls -q) 2>/dev/null || true
+	sudo rm -rf ${DATA_DIR}/wordpress-data
+	sudo rm -rf ${DATA_DIR}/wordpress-site
 	rm -rf ${DATA_DIR}/.keys
-	rmdir ${DATA_DIR}
 	docker system prune -a -f
 
 restart: clean up
